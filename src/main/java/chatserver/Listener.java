@@ -3,7 +3,7 @@ package chatserver;
 import channel.Channel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import protocol.Protocol;
+import chatserver.protocol.Protocol;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;

@@ -10,7 +10,7 @@ import cli.Command;
 import cli.Shell;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import protocol.ChatProtocol;
+import chatserver.protocol.ChatProtocol;
 import util.Config;
 
 public class Chatserver implements IChatserverCli, Runnable {
@@ -58,7 +58,7 @@ public class Chatserver implements IChatserverCli, Runnable {
             System.exit(-1);
         }
 
-        tcpListener.start();
+        tcpListener.start);
 
         shell = new Shell(componentName, userRequestStream, userResponseStream);
         shell.register(this);
@@ -68,7 +68,17 @@ public class Chatserver implements IChatserverCli, Runnable {
 	@Override
     @Command
 	public String users() throws IOException {
-		return "users command";
+		String usersString = "";
+		int index = 1;
+
+		for (User user : userStore.getUsersSorted()) {
+			usersString += String.format("%d. %s %s%s",
+										 index++, user.getName(),
+										 user.isOnline() ? "online" : "offline",
+										 System.lineSeparator());
+		}
+
+		return usersString;
 	}
 
 	@Override
