@@ -20,13 +20,14 @@ public class Connection implements Runnable {
 
     @Override
     public void run() {
-        String inputLine;
+        String input;
         try {
             channel.open();
             log.info("chatprotocol connected");
 
-            while ((inputLine = channel.readLine()) != null) {
-                channel.writeLine(inputLine);
+            while ((input = channel.readLine()) != null) {
+                String output = protocol.nextCommand(input);
+                channel.writeLine(output);
             }
         } catch (IOException e) {
             log.warn(e);

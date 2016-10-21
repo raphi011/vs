@@ -2,13 +2,13 @@ package chatserver.protocol;
 
 public abstract class Protocol {
 
-    protected abstract String selectCommand(String command, String input);
+    protected abstract String selectCommand(String command, String params);
 
     public String nextCommand(String input) {
-        int commandEndIndex = input.indexOf(' ');
-        String command = input.substring(0, commandEndIndex);
-        String args = input.substring(commandEndIndex);
+        String[] commandParts = input.split(" ", 2);
+        String command = commandParts[0];
+        String params = commandParts.length == 2 ? commandParts[1] : "";
 
-        return selectCommand(command, args);
+        return selectCommand(command, params);
     }
 }

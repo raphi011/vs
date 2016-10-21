@@ -9,23 +9,29 @@ public class ChatProtocol extends Protocol {
 
     public ChatProtocol(UserStore userStore) {
         this.userStore = userStore;
-
     }
 
     @Override
     protected String selectCommand(String command, String input) {
         switch (command) {
-            case "login":
-                return login(input);
-            case "send":
-                return send(input);
-            case "lookup":
-                return lookup(input);
-            case "register":
-                return register(input);
-            default:
-                return "Unknown command";
+            case "login": return login(input);
+            case "logout": return logout(input);
+            case "send": return send(input);
+            case "lookup": return lookup(input);
+            case "register": return register(input);
+            default: return "Unknown command";
         }
+    }
+
+    private String logout(String input) {
+        if (loggedInUser == null) {
+            return "Not logged in.";
+        }
+
+        loggedInUser.setIsOnline(false);
+        loggedInUser = null;
+
+        return "Successfully logged out.";
     }
 
     private String register(String input) {
@@ -39,7 +45,7 @@ public class ChatProtocol extends Protocol {
     }
 
     private String send(String input) {
-        return "Not implemented";
+        return "Not implemented.";
     }
 
     private String lookup(String input) {

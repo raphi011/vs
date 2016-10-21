@@ -3,9 +3,12 @@ package chatserver;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
 
 import channel.TcpChannel;
+import channel.UdpChannel;
+import chatserver.protocol.InfoProtocol;
 import cli.Command;
 import cli.Shell;
 import org.apache.commons.logging.Log;
@@ -24,6 +27,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 
 	private Shell shell;
 	private Listener tcpListener;
+	private Listener udpListener;
 
 	/**
 	 * @param componentName
@@ -47,18 +51,24 @@ public class Chatserver implements IChatserverCli, Runnable {
 	@Override
 	public void run() {
 		int tcpPort = config.getInt("tcp.port");
+		int udpPort = config.getInt("udp.port");
+
 		userStore.load();
 
         try {
             tcpListener = new Listener("tcpListener",
 									   new TcpChannel(new ServerSocket(tcpPort)),
 									   new ChatProtocol(userStore));
+			udpListener = new Listener("udpListener",
+									   new UdpChannel(new DatagramSocket(udpPort)),
+									   new InfoProtocol(userStore));
         } catch (IOException ex) {
             log.error("unable to open server socket", ex);
             System.exit(-1);
         }
 
-        tcpListener.start);
+        tcpListener.start();
+		udpListener.start();
 
         shell = new Shell(componentName, userRequestStream, userResponseStream);
         shell.register(this);
@@ -73,7 +83,8 @@ public class Chatserver implements IChatserverCli, Runnable {
 
 		for (User user : userStore.getUsersSorted()) {
 			usersString += String.format("%d. %s %s%s",
-										 index++, user.getName(),
+										 index++,
+										 user.getName(),
 										 user.isOnline() ? "online" : "offline",
 										 System.lineSeparator());
 		}
@@ -86,7 +97,9 @@ public class Chatserver implements IChatserverCli, Runnable {
 	public String exit() throws IOException {
         try {
 			tcpListener.shutdown();
+			udpListener.shutdown();
 			tcpListener.join();
+			udpListener.join();
 		} catch (InterruptedException ex) {
 			// dont care ..
 		}
