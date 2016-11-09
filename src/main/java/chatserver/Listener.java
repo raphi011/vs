@@ -1,6 +1,7 @@
 package chatserver;
 
 import channel.Channel;
+import chatserver.protocol.IProtocolFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import chatserver.protocol.Protocol;
@@ -13,13 +14,13 @@ public class Listener extends Thread {
     private final Log log = LogFactory.getLog(Listener.class);
 
     private final Channel channel;
-    private final Protocol protocol;
     private final String name;
+    private final IProtocolFactory protocolFactory;
 
-    public Listener(String name, Channel channel, Protocol protocol) {
+    public Listener(String name, Channel channel, IProtocolFactory protocolFactory) {
         this.name = name;
         this.channel = channel;
-        this.protocol = protocol;
+        this.protocolFactory = protocolFactory;
     }
 
     @Override
@@ -30,7 +31,7 @@ public class Listener extends Thread {
 
         while (true) {
             try {
-                pool.execute(new Connection(channel.accept(), protocol));
+                pool.execute(new Connection(channel.accept(), protocolFactory.newProtocol()));
             } catch (IOException ex) {
                 // shutdown
                 break;

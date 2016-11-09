@@ -8,12 +8,12 @@ import java.net.ServerSocket;
 
 import channel.TcpChannel;
 import channel.UdpChannel;
-import chatserver.protocol.InfoProtocol;
+import chatserver.protocol.ChatProtocolFactory;
+import chatserver.protocol.InfoProtocolFactory;
 import cli.Command;
 import cli.Shell;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import chatserver.protocol.ChatProtocol;
 import util.Config;
 
 public class Chatserver implements IChatserverCli, Runnable {
@@ -58,10 +58,10 @@ public class Chatserver implements IChatserverCli, Runnable {
         try {
             tcpListener = new Listener("tcpListener",
 									   new TcpChannel(new ServerSocket(tcpPort)),
-									   new ChatProtocol(userStore));
+									   new ChatProtocolFactory(userStore));
 			udpListener = new Listener("udpListener",
 									   new UdpChannel(new DatagramSocket(udpPort)),
-									   new InfoProtocol(userStore));
+									   new InfoProtocolFactory(userStore));
         } catch (IOException ex) {
             log.error("unable to open server socket", ex);
             System.exit(-1);

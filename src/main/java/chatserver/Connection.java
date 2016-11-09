@@ -23,11 +23,14 @@ public class Connection implements Runnable {
         String input;
         try {
             channel.open();
+            protocol.setChannel(channel);
             log.info("chatprotocol connected");
 
             while ((input = channel.readLine()) != null) {
                 String output = protocol.nextCommand(input);
-                channel.writeLine(output);
+                if (output != null && output != "") {
+                    channel.writeLine(output);
+                }
             }
         } catch (IOException e) {
             log.warn(e);
@@ -39,4 +42,6 @@ public class Connection implements Runnable {
             }
         }
     }
+
+
 }

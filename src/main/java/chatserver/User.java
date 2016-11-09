@@ -1,6 +1,6 @@
 package chatserver;
 
-import java.net.Socket;
+import chatserver.protocol.ISendMessage;
 
 public class User implements Comparable<User> {
     private final String password;
@@ -8,7 +8,7 @@ public class User implements Comparable<User> {
 
     private boolean isOnline;
     private String privateAddress;
-    private Socket tcpConnection;
+    private ISendMessage protocol;
 
     public User(String name, String password) {
         this.name = name;
@@ -27,8 +27,19 @@ public class User implements Comparable<User> {
         return isOnline;
     }
 
-    public void setIsOnline(boolean isOnline) {
-        this.isOnline = isOnline;
+    public void logout() {
+        isOnline = false;
+        protocol = null;
+        privateAddress = null;
+    }
+
+    public boolean login(String password) {
+        if (this.password.equals(password)) {
+            isOnline = true;
+            return true;
+        }
+
+        return false;
     }
 
     public void setPrivateAddress(String address) {
@@ -43,14 +54,6 @@ public class User implements Comparable<User> {
         return !(privateAddress == null || privateAddress.isEmpty());
     }
 
-    public void setTcpConnection(Socket tcpConnection) {
-        this.tcpConnection = tcpConnection;
-    }
-
-    public Socket getTcpConnection() {
-        return tcpConnection;
-    }
-
     @Override
     public int compareTo(User o) {
         if (o == null) {
@@ -58,4 +61,13 @@ public class User implements Comparable<User> {
         }
         return name.compareTo(o.name);
     }
+
+    public void setProtocol(ISendMessage protocol) {
+        this.protocol = protocol;
+    }
+
+    public ISendMessage getProtocol() {
+        return protocol;
+    }
+
 }

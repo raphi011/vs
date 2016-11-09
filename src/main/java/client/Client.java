@@ -30,6 +30,13 @@ public class Client implements IClientCli, Runnable {
 		this.userRequestStream = userRequestStream;
 		this.userResponseStream = userResponseStream;
 
+		String host = config.getString("chatserver.host");
+		int tcpPort = config.getInt("chatserver.tcp.port");
+		int udpPort = config.getInt("chatserver.udp.port");
+
+		serverCommunication = new ServerCommunication(userResponseStream, host, tcpPort, udpPort);
+
+
 		// TODO
 	}
 
@@ -99,7 +106,7 @@ public class Client implements IClientCli, Runnable {
 	public static void main(String[] args) {
 		Client client = new Client(args[0], new Config("client"), System.in,
 				System.out);
-		// TODO: start the client
+		client.run();
 	}
 
 	// --- Commands needed for Lab 2. Please note that you do not have to
@@ -110,5 +117,4 @@ public class Client implements IClientCli, Runnable {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
 }

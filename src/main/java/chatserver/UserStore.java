@@ -70,27 +70,10 @@ public class UserStore {
 
     public User Authenticate(String userName, String password) {
         User user = getUser(userName);
-        if (user != null && user.getPassword().equals(password)) {
-            user.setIsOnline(true);
+        if (user != null && user.login(password)) {
             return user;
         }
         return null;
-    }
-
-    public void logout(User user) {
-        assert (user != null);
-
-        Socket con = user.getTcpConnection();
-
-        if (!con.isClosed()) {
-            try {
-                con.close();
-            } catch (IOException ex) {
-                log.warn("logout: error closing the users tcp connection", ex);
-            }
-        }
-        user.setPrivateAddress(null);
-        user.setIsOnline(false);
     }
 
     public User[] getOnlineUsers() {
