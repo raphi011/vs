@@ -1,50 +1,28 @@
 package channel;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-public class UdpChannel implements Channel {
+public class UdpChannel implements IChannel {
 
-    private final DatagramSocket datagramSocket;
-    private final DatagramPacket datagramPacket;
+    private final DatagramSocket socket;
+    private final DatagramPacket packet;
 
     private String content;
     private int index;
     private int length;
 
-    public UdpChannel(DatagramSocket datagramSocket) {
-        this.datagramSocket = datagramSocket;
-        this.datagramPacket = null;
-    }
-
-    private UdpChannel(DatagramPacket datagramPacket) {
-        this.datagramSocket = null;
-        this.datagramPacket = datagramPacket;
-    }
-
-    @Override
-    public Channel accept() throws IOException {
-        byte[] buffer = new byte[1024];
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-        datagramSocket.receive(packet);
-
-        Channel channel = new UdpChannel(packet);
-        channel.open();
-        return channel;
-    }
-
-    @Override
-    public void shutdown() throws IOException {
-        datagramSocket.close();
+    public UdpChannel(DatagramSocket socket, DatagramPacket datagramPacket) {
+        this.socket = socket;
+        this.packet = datagramPacket;
     }
 
     @Override
     public void open() throws IOException {
-        content = new String(datagramPacket.getData());
-        length = datagramPacket.getLength();
+        content = new String(packet.getData());
+        length = packet.getLength();
         index = 0;
     }
 
@@ -53,13 +31,18 @@ public class UdpChannel implements Channel {
     }
 
     @Override
+    public boolean isOpen() {
+        return socket.isConnected();
+    }
+
+    @Override
     public void writeLine(String line) throws IOException {
-        InetAddress address = datagramPacket.getAddress();
-        int port = datagramPacket.getPort();
+        InetAddress address = packet.getAddress();
+        int port = packet.getPort();
         byte[] buffer = line.getBytes();
 
 
-        datagramSocket.send(new DatagramPacket(buffer,
+        socket.send(new DatagramPacket(buffer,
                                                buffer.length,
                                                address,
                                                port));

@@ -4,36 +4,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 
-public class TcpChannel implements Channel {
+public class TcpChannel implements IChannel {
 
-    private final ServerSocket serverSocket;
     private final Socket socket;
     private PrintWriter out;
     private BufferedReader in;
 
-    public TcpChannel(ServerSocket serverSocket) {
-        this.serverSocket = serverSocket;
-        this.socket = null;
-    }
 
-    private TcpChannel(Socket socket) {
-        this.serverSocket = null;
+    public TcpChannel(Socket socket) {
         this.socket = socket;
-    }
-
-    @Override
-    public Channel accept() throws IOException {
-        Channel channel = new TcpChannel(serverSocket.accept());
-        channel.open();
-        return channel;
-    }
-
-    @Override
-    public void shutdown() throws IOException {
-        serverSocket.close();
     }
 
     @Override
@@ -49,7 +30,12 @@ public class TcpChannel implements Channel {
     }
 
     @Override
-    public void writeLine(String line) {
+    public boolean isOpen() {
+        return socket.isConnected();
+    }
+
+    @Override
+    public synchronized void writeLine(String line) {
         out.println(line);
     }
 

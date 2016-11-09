@@ -1,6 +1,7 @@
 package chatserver.protocol;
 
 import chatserver.UserStore;
+import connection.Protocol;
 
 public class InfoProtocolFactory implements IProtocolFactory {
 

@@ -1,6 +1,7 @@
 package chatserver.protocol;
 
 import chatserver.UserStore;
+import connection.Protocol;
 
 public class ChatProtocolFactory implements IProtocolFactory {
 
@@ -10,7 +11,7 @@ public class ChatProtocolFactory implements IProtocolFactory {
         this.userStore = userStore;
     }
 
-    public ChatProtocol newProtocol() {
+    public Protocol newProtocol() {
         return new ChatProtocol(userStore);
     }
 }

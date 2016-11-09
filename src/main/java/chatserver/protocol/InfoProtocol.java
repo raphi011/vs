@@ -2,13 +2,20 @@ package chatserver.protocol;
 
 import chatserver.User;
 import chatserver.UserStore;
+import connection.Protocol;
 
 public class InfoProtocol extends Protocol {
 
     private final UserStore userStore;
 
     public InfoProtocol(UserStore userStore) {
+        super(" ");
         this.userStore = userStore;
+    }
+
+    @Override
+    protected boolean isCommand(String input) {
+        return true;
     }
 
     @Override

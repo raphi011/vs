@@ -1,25 +1,25 @@
 package chatserver;
 
-import channel.Channel;
+import channel.IListener;
 import chatserver.protocol.IProtocolFactory;
+import connection.Connection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import chatserver.protocol.Protocol;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Listener extends Thread {
-    private final Log log = LogFactory.getLog(Listener.class);
+public class ConnectionAgent extends Thread {
+    private final Log log = LogFactory.getLog(ConnectionAgent.class);
 
-    private final Channel channel;
     private final String name;
     private final IProtocolFactory protocolFactory;
+    private final IListener listener;
 
-    public Listener(String name, Channel channel, IProtocolFactory protocolFactory) {
+    public ConnectionAgent(String name, IListener listener, IProtocolFactory protocolFactory) {
         this.name = name;
-        this.channel = channel;
+        this.listener = listener;
         this.protocolFactory = protocolFactory;
     }
 
@@ -31,7 +31,7 @@ public class Listener extends Thread {
 
         while (true) {
             try {
-                pool.execute(new Connection(channel.accept(), protocolFactory.newProtocol()));
+                pool.execute(new Connection(listener.accept(), protocolFactory.newProtocol()));
             } catch (IOException ex) {
                 // shutdown
                 break;
@@ -43,6 +43,6 @@ public class Listener extends Thread {
     }
 
     public void shutdown() throws IOException {
-        channel.shutdown();
+        listener.shutdown();
     }
 }

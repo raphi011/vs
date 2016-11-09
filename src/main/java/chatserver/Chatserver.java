@@ -6,8 +6,8 @@ import java.io.PrintStream;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 
-import channel.TcpChannel;
-import channel.UdpChannel;
+import channel.TcpListener;
+import channel.UdpListener;
 import chatserver.protocol.ChatProtocolFactory;
 import chatserver.protocol.InfoProtocolFactory;
 import cli.Command;
@@ -26,8 +26,8 @@ public class Chatserver implements IChatserverCli, Runnable {
 	private final PrintStream userResponseStream;
 
 	private Shell shell;
-	private Listener tcpListener;
-	private Listener udpListener;
+	private ConnectionAgent tcpListener;
+	private ConnectionAgent udpListener;
 
 	/**
 	 * @param componentName
@@ -56,11 +56,11 @@ public class Chatserver implements IChatserverCli, Runnable {
 		userStore.load();
 
         try {
-            tcpListener = new Listener("tcpListener",
-									   new TcpChannel(new ServerSocket(tcpPort)),
+            tcpListener = new ConnectionAgent("tcpListener",
+									   new TcpListener(new ServerSocket(tcpPort)),
 									   new ChatProtocolFactory(userStore));
-			udpListener = new Listener("udpListener",
-									   new UdpChannel(new DatagramSocket(udpPort)),
+			udpListener = new ConnectionAgent("udpListener",
+									   new UdpListener(new DatagramSocket(udpPort)),
 									   new InfoProtocolFactory(userStore));
         } catch (IOException ex) {
             log.error("unable to open server socket", ex);

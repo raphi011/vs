@@ -2,6 +2,7 @@ package chatserver.protocol;
 
 import chatserver.User;
 import chatserver.UserStore;
+import connection.Protocol;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -14,7 +15,13 @@ public class ChatProtocol extends Protocol implements ISendMessage {
     private final UserStore userStore;
 
     public ChatProtocol(UserStore userStore) {
+        super(" ");
         this.userStore = userStore;
+    }
+
+    @Override
+    protected boolean isCommand(String input) {
+        return true;
     }
 
     @Override
@@ -24,6 +31,7 @@ public class ChatProtocol extends Protocol implements ISendMessage {
             case "logout": return logout(input);
             case "send": return send(input);
             case "lookup": return lookup(input);
+            case "$lookup": return implicitLookup(input);
             case "register": return register(input);
             default: return "Unknown command";
         }
@@ -66,11 +74,24 @@ public class ChatProtocol extends Protocol implements ISendMessage {
         return "";
     }
 
-    private String lookup(String input) {
+    private String implicitLookup(String username) {
         if (loggedInUser == null) {
             return "Not logged in.";
         }
-        User user = userStore.getUser(input);
+
+        User user = userStore.getUser(username);
+        if (user == null || !user.getIsRegistered()) {
+            return String.format("$lookup|1|%s|Wrong username or user not reachable.", username);
+        }
+
+        return String.format("$lookup|0|%s|%s", username, user.getPrivateAddress());
+    }
+
+    private String lookup(String username) {
+        if (loggedInUser == null) {
+            return "Not logged in.";
+        }
+        User user = userStore.getUser(username);
         if (user == null || !user.getIsRegistered()) {
             return "Wrong username or user not registered.";
         }
@@ -82,7 +103,7 @@ public class ChatProtocol extends Protocol implements ISendMessage {
         if (loggedInUser != null) {
             return "Already logged in.";
         }
-        String[] credentials = input.split(" ");
+        String[] credentials = input.split(argsDelimiter);
 
         if (credentials.length != 2) {
             return "Wrong command format.";
