@@ -14,6 +14,10 @@ public abstract class Protocol {
 
     protected abstract boolean isCommand(String input);
 
+    protected String[] splitParams(String input) {
+        return input.split(argsDelimiter);
+    }
+
     protected abstract String selectCommand(String command, String params);
 
     public String nextCommand(String input) {

@@ -30,8 +30,13 @@ public class InfoProtocol extends Protocol {
         String usersString = "Online users:";
 
         for (User user : userStore.getOnlineUsers()) {
-            usersString += String.format("* %s %s%s", user.getName(), System.lineSeparator());
+            usersString += String.format(
+                    "%s* %s",
+                    System.lineSeparator(),
+                    user.getName());
         }
+
+        usersString += System.lineSeparator();
 
         return usersString;
     }

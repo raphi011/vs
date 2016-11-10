@@ -12,6 +12,7 @@ import chatserver.protocol.ChatProtocolFactory;
 import chatserver.protocol.InfoProtocolFactory;
 import cli.Command;
 import cli.Shell;
+import connection.ConnectionAgent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import util.Config;

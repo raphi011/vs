@@ -1,6 +1,4 @@
-package chatserver.protocol;
-
-import connection.Protocol;
+package connection;
 
 public interface IProtocolFactory {
 

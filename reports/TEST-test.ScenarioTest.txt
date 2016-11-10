@@ -1,0 +1,54 @@
+Testsuite: test.ScenarioTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6,548 sec
+------------- Standard Output ---------------
+00_login_test.txt
+18:27:36.955		alice.vienna.at> !login alice.vienna.at 12345
+Successfully logged in.
+18:27:37.476		alice.vienna.at> !list
+Online users:
+18:27:37.982		chatserver> !users
+18:27:37.982		chatserver:
+18:27:37.982		1. alice.vienna.at online
+18:27:37.982		2. bill.de offline
+18:27:38.482		chatserver> !exit
+18:27:38.982		alice.vienna.at> !exit
+18:27:38.984		alice.vienna.at:
+18:27:38.984		java.lang.reflect.InvocationTargetException
+18:27:38.984			at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+18:27:38.984			at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+18:27:38.984			at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+18:27:38.984			at java.lang.reflect.Method.invoke(Method.java:497)
+18:27:38.984			at cli.Shell$ShellCommandInvocationHandler.invoke(Shell.java:359)
+18:27:38.984			at cli.Shell.invoke(Shell.java:291)
+18:27:38.984			at cli.Shell.run(Shell.java:81)
+18:27:38.984			at client.Client.run(Client.java:91)
+18:27:38.984			at java.lang.Thread.run(Thread.java:745)
+18:27:38.984		Caused by: java.lang.NullPointerException
+18:27:38.984			at client.Client.exit(Client.java:222)
+18:27:38.984			... 9 more
+################################################################################
+------------- ---------------- ---------------
+------------- Standard Error -----------------
+Nov 10, 2016 6:27:32 PM connection.ConnectionAgent run
+INFORMATION: udpListener starting up
+Nov 10, 2016 6:27:32 PM connection.ConnectionAgent run
+INFORMATION: tcpListener starting up
+Nov 10, 2016 6:27:34 PM connection.ConnectionAgent run
+INFORMATION: udpListener starting up
+Nov 10, 2016 6:27:34 PM connection.ConnectionAgent run
+INFORMATION: tcpListener connected
+Nov 10, 2016 6:27:37 PM connection.ConnectionAgent run
+INFORMATION: udpListener connected
+Nov 10, 2016 6:27:37 PM connection.ConnectionAgent run
+INFORMATION: udpListener connected
+Nov 10, 2016 6:27:38 PM connection.ConnectionAgent run
+INFORMATION: shutting down
+Nov 10, 2016 6:27:38 PM connection.ConnectionAgent run
+INFORMATION: shutting down
+Nov 10, 2016 6:27:38 PM connection.ConnectionAgent run
+INFORMATION: shutting down
+Nov 10, 2016 6:27:38 PM connection.ConnectionAgent run
+WARNUNG: java.net.SocketException: Socket closed
+------------- ---------------- ---------------
+
+Testcase: 00_login_test took 6,536 sec

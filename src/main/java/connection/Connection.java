@@ -1,14 +1,12 @@
 package connection;
 
 import channel.IChannel;
-import chatserver.ConnectionAgent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.omg.CORBA.Environment;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.PrintWriter;
+import java.net.SocketException;
 
 public class Connection implements Runnable {
     private final Log log = LogFactory.getLog(ConnectionAgent.class);
@@ -32,7 +30,6 @@ public class Connection implements Runnable {
         try {
             channel.open();
             protocol.setChannel(channel);
-            log.info("chatprotocol connected");
 
             while ((input = channel.readLine()) != null) {
                 String output = protocol.nextCommand(input);
@@ -43,6 +40,10 @@ public class Connection implements Runnable {
                         channel.writeLine(output);
                     }
                 }
+            }
+        } catch (SocketException e) {
+            if (!e.getMessage().contains("closed")) {
+                log.warn(e);
             }
         } catch (IOException e) {
             log.warn(e);

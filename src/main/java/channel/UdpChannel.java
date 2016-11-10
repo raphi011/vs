@@ -8,26 +8,45 @@ import java.net.InetAddress;
 public class UdpChannel implements IChannel {
 
     private final DatagramSocket socket;
-    private final DatagramPacket packet;
+    private final InetAddress address;
+    private final int port;
 
+    private DatagramPacket packet;
     private String content;
-    private int index;
+    private int pos;
     private int length;
 
-    public UdpChannel(DatagramSocket socket, DatagramPacket datagramPacket) {
+    public UdpChannel(DatagramSocket socket,
+                      DatagramPacket datagramPacket) {
         this.socket = socket;
         this.packet = datagramPacket;
+        this.address = packet.getAddress();
+        this.port = packet.getPort();
+
+    }
+
+    public UdpChannel(DatagramSocket socket,
+                      InetAddress address,
+                      int port) {
+        this.socket = socket;
+        this.address = address;
+        this.port = port;
+    }
+
+    public void setPacket(DatagramPacket packet) {
+        this.packet = packet;
     }
 
     @Override
     public void open() throws IOException {
-        content = new String(packet.getData());
-        length = packet.getLength();
-        index = 0;
+        content = new String(packet.getData(), 0, packet.getLength());
+        length = content.length();
+        pos = 0;
     }
 
     @Override
     public void close() throws IOException {
+        // intentionally does nothing
     }
 
     @Override
@@ -37,10 +56,7 @@ public class UdpChannel implements IChannel {
 
     @Override
     public void writeLine(String line) throws IOException {
-        InetAddress address = packet.getAddress();
-        int port = packet.getPort();
         byte[] buffer = line.getBytes();
-
 
         socket.send(new DatagramPacket(buffer,
                                                buffer.length,
@@ -50,9 +66,21 @@ public class UdpChannel implements IChannel {
 
     @Override
     public String readLine() throws IOException {
-        int newLineIndex = content.indexOf('\n', index);
-        String line = content.substring(index, newLineIndex);
-        index = newLineIndex;
+        if (pos == length) {
+            return null;
+        }
+
+        int newPos = content.indexOf('\n', pos);
+
+        if (newPos == -1) {
+            newPos = length;
+        }
+
+        String line = content.substring(pos,
+                                        newPos == -1 ?
+                                            content.length() :
+                                            newPos);
+        pos = newPos;
 
         return line;
     }

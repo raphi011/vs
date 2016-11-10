@@ -35,7 +35,7 @@ public class TcpChannel implements IChannel {
     }
 
     @Override
-    public synchronized void writeLine(String line) {
+    public void writeLine(String line) {
         out.println(line);
     }
 

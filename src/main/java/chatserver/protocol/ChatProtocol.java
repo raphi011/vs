@@ -28,7 +28,7 @@ public class ChatProtocol extends Protocol implements ISendMessage {
     protected String selectCommand(String command, String input) {
         switch (command) {
             case "login": return login(input);
-            case "logout": return logout(input);
+            case "logout": return logout();
             case "send": return send(input);
             case "lookup": return lookup(input);
             case "$lookup": return implicitLookup(input);
@@ -37,14 +37,14 @@ public class ChatProtocol extends Protocol implements ISendMessage {
         }
     }
 
-    private String logout(String input) {
+    private String logout() {
         if (loggedInUser == null) {
-            return "Not logged in.";
+            return "$logout|1|Not logged in.";
         }
 
         loggedInUser.logout();
 
-        return "Successfully logged out.";
+        return "$logout|0|Successfully logged out.";
     }
 
     private String register(String input) {
@@ -101,27 +101,29 @@ public class ChatProtocol extends Protocol implements ISendMessage {
 
     private String login(String input) {
         if (loggedInUser != null) {
-            return "Already logged in.";
+            return "$login|1|Already logged in.";
         }
         String[] credentials = input.split(argsDelimiter);
+        String username = credentials[0];
+        String password = credentials[1];
 
         if (credentials.length != 2) {
-            return "Wrong command format.";
+            return "$login|1|Wrong command format.";
         }
 
-        if ((loggedInUser = userStore.Authenticate(credentials[0], credentials[1])) == null) {
-            return "Wrong username or password.";
+        if ((loggedInUser = userStore.Authenticate(username, password)) == null) {
+            return "$login|1|Wrong username or password.";
         }
 
         loggedInUser.setProtocol(this);
 
-        return "Successfully logged in.";
+        return String.format("$login|0|%s|Successfully logged in.", username);
     }
 
     @Override
     public void sendMessage(String message) {
         try {
-            this.channel.writeLine(message);
+            this.channel.writeLine(String.format("$send|0|%s", message));
         } catch (IOException ex) {
             log.error(ex);
         }
