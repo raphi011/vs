@@ -12,7 +12,6 @@ public class TcpChannel implements IChannel {
     private PrintWriter out;
     private BufferedReader in;
 
-
     public TcpChannel(Socket socket) {
         this.socket = socket;
     }

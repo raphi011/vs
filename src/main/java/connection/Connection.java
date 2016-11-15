@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 public class Connection implements Runnable {
     private final Log log = LogFactory.getLog(ConnectionAgent.class);
@@ -26,33 +27,39 @@ public class Connection implements Runnable {
 
     @Override
     public void run() {
-        String input;
         try {
             channel.open();
-            protocol.setChannel(channel);
 
-            while ((input = channel.readLine()) != null) {
-                String output = protocol.nextCommand(input);
-                if (output != null && !output.equals("")) {
-                    if (overrideOut != null) {
-                       overrideOut.println(output);
-                    } else {
-                        channel.writeLine(output);
+            while (!Thread.interrupted()) {
+                try {
+                    String input = channel.readLine();
+
+                    if (input == null) {
+                        break;
                     }
-                }
+                    String output = protocol.nextCommand(input);
+                    if (output != null && !output.equals("")) {
+                        if (overrideOut != null) {
+                           overrideOut.println(output);
+                        } else {
+                            channel.writeLine(output);
+                        }
+                    }
+                } catch (SocketTimeoutException ex) { }
             }
         } catch (SocketException e) {
             if (!e.getMessage().contains("closed")) {
-                log.warn(e);
+                log.error(e);
             }
         } catch (IOException e) {
-            log.warn(e);
+            log.error(e);
         } finally {
             try {
                 channel.close();
             } catch (IOException ex) {
-                log.warn(ex);
+                log.error(ex);
             }
+            protocol.onClosed();
         }
     }
 }

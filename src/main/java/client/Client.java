@@ -63,7 +63,7 @@ public class Client implements IClientCli, Runnable {
 		try {
 			// tcp server
 			tcpChannel = new TcpChannel(new Socket(host, tcpPort));
-			clientProtocol = new ClientProtocol();
+			clientProtocol = new ClientProtocol(tcpChannel);
 			Connection tcpConnection = new Connection(tcpChannel, clientProtocol);
 			tcpConnection.overrideOut(userResponseStream);
 			tcpListenerThread = new Thread(tcpConnection, "clientprotocol");

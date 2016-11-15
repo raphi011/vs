@@ -2,15 +2,24 @@ package connection;
 
 import channel.IChannel;
 
-public abstract class Protocol {
+import java.io.IOException;
 
-    protected final String argsDelimiter;
+public abstract class Protocol {
 
     protected IChannel channel;
 
-    public Protocol(String argsDelimiter) {
+    public Protocol(String argsDelimiter, IChannel channel) {
         this.argsDelimiter = argsDelimiter;
+        this.channel = channel;
     }
+
+    protected final String argsDelimiter;
+
+    public void close() throws IOException {
+       channel.close();
+    }
+
+    public void onClosed() { }
 
     protected abstract boolean isCommand(String input);
 
@@ -29,10 +38,5 @@ public abstract class Protocol {
         } else {
             return selectCommand("", input);
         }
-
-    }
-
-    public void setChannel(IChannel channel) {
-        this.channel = channel;
     }
 }

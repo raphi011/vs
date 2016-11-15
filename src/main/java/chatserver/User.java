@@ -1,5 +1,6 @@
 package chatserver;
 
+import chatserver.protocol.ChatProtocol;
 import chatserver.protocol.ISendMessage;
 
 public class User implements Comparable<User> {
@@ -8,7 +9,7 @@ public class User implements Comparable<User> {
 
     private boolean isOnline;
     private String privateAddress;
-    private ISendMessage protocol;
+    private ChatProtocol protocol;
 
     public User(String name, String password) {
         this.name = name;
@@ -50,7 +51,7 @@ public class User implements Comparable<User> {
         return this.privateAddress;
     }
 
-    public boolean getIsRegistered() {
+    public boolean isRegistered() {
         return !(privateAddress == null || privateAddress.isEmpty());
     }
 
@@ -62,11 +63,11 @@ public class User implements Comparable<User> {
         return name.compareTo(o.name);
     }
 
-    public void setProtocol(ISendMessage protocol) {
+    public void setProtocol(ChatProtocol protocol) {
         this.protocol = protocol;
     }
 
-    public ISendMessage getProtocol() {
+    public ChatProtocol getProtocol() {
         return protocol;
     }
 

@@ -1,5 +1,6 @@
 package chatserver.protocol;
 
+import channel.IChannel;
 import chatserver.UserStore;
 import connection.IProtocolFactory;
 import connection.Protocol;
@@ -13,7 +14,7 @@ public class InfoProtocolFactory implements IProtocolFactory {
     }
 
     @Override
-    public Protocol newProtocol() {
-        return new InfoProtocol(userStore);
+    public Protocol newProtocol(IChannel channel) {
+        return new InfoProtocol(userStore, channel);
     }
 }

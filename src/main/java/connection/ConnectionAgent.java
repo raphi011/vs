@@ -1,11 +1,13 @@
 package connection;
 
+import channel.IChannel;
 import channel.IListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.SocketException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -16,6 +18,7 @@ public class ConnectionAgent extends Thread {
     private final IProtocolFactory protocolFactory;
     private final IListener listener;
     private PrintStream overrideOut;
+    private ExecutorService pool;
 
     public ConnectionAgent(String name, IListener listener, IProtocolFactory protocolFactory) {
         this.name = name;
@@ -31,24 +34,27 @@ public class ConnectionAgent extends Thread {
     public void run() {
         log.info(String.format("%s starting up", name));
 
-        ExecutorService pool = Executors.newFixedThreadPool(512);
+        pool = Executors.newFixedThreadPool(512);
 
         while (true) {
             try {
-                Connection connection = new Connection(listener.accept(), protocolFactory.newProtocol());
+                IChannel channel = listener.accept(500);
+                Connection connection = new Connection(channel, protocolFactory.newProtocol(channel));
                 log.info(String.format("%s connected", name));
                 if (this.overrideOut != null){
                     connection.overrideOut(this.overrideOut);
                 }
                 pool.execute(connection);
-            } catch (IOException ex) {
+            } catch (SocketException ex) {
                 // shutdown
                 break;
+            } catch (IOException ex) {
+                log.error(ex);
             }
         }
 
         log.info("shutting down");
-        pool.shutdown();
+        pool.shutdownNow();
     }
 
     public void shutdown() throws IOException {

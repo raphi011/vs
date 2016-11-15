@@ -1,5 +1,6 @@
 package chatserver.protocol;
 
+import channel.IChannel;
 import chatserver.User;
 import chatserver.UserStore;
 import connection.Protocol;
@@ -8,8 +9,8 @@ public class InfoProtocol extends Protocol {
 
     private final UserStore userStore;
 
-    public InfoProtocol(UserStore userStore) {
-        super(" ");
+    public InfoProtocol(UserStore userStore, IChannel channel) {
+        super(" ", channel);
         this.userStore = userStore;
     }
 

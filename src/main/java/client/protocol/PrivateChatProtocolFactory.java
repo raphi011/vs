@@ -1,5 +1,6 @@
 package client.protocol;
 
+import channel.IChannel;
 import connection.IProtocolFactory;
 import connection.Protocol;
 
@@ -15,7 +16,7 @@ public class PrivateChatProtocolFactory implements IProtocolFactory {
     }
 
     @Override
-    public Protocol newProtocol() {
-        return new PrivateChatProtocol(username, out);
+    public Protocol newProtocol(IChannel channel) {
+        return new PrivateChatProtocol(username, out, channel);
     }
 }

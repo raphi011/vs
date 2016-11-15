@@ -1,5 +1,6 @@
 package client.protocol;
 
+import channel.IChannel;
 import channel.TcpChannel;
 import connection.Protocol;
 import org.apache.commons.logging.Log;
@@ -19,8 +20,8 @@ public class ClientProtocol extends Protocol {
     private String lastMessage;
     private String username;
 
-    public ClientProtocol() {
-        super("\\|");
+    public ClientProtocol(IChannel channel) {
+        super("\\|", channel);
         messages = new ConcurrentHashMap<>();
     }
 

@@ -1,5 +1,6 @@
 package chatserver.protocol;
 
+import channel.IChannel;
 import chatserver.User;
 import chatserver.UserStore;
 import connection.Protocol;
@@ -8,14 +9,14 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 
-public class ChatProtocol extends Protocol implements ISendMessage {
+public class ChatProtocol extends Protocol {
     private final Log log = LogFactory.getLog(ChatProtocol.class);
 
     private User loggedInUser;
     private final UserStore userStore;
 
-    public ChatProtocol(UserStore userStore) {
-        super(" ");
+    public ChatProtocol(UserStore userStore, IChannel channel) {
+        super(" ", channel);
         this.userStore = userStore;
     }
 
@@ -37,12 +38,27 @@ public class ChatProtocol extends Protocol implements ISendMessage {
         }
     }
 
+    @Override
+    public void onClosed() {
+        if (loggedInUser == null) {
+            return;
+        }
+
+        synchronized (loggedInUser) {
+            if (loggedInUser.isOnline()) {
+                loggedInUser.logout();
+            }
+        }
+    }
+
     private String logout() {
         if (loggedInUser == null) {
             return "$logout|1|Not logged in.";
         }
 
-        loggedInUser.logout();
+        synchronized (loggedInUser) {
+            loggedInUser.logout();
+        }
 
         return "$logout|0|Successfully logged out.";
     }
@@ -52,7 +68,9 @@ public class ChatProtocol extends Protocol implements ISendMessage {
             return "Not logged in.";
         }
 
-        loggedInUser.setPrivateAddress(input);
+        synchronized (loggedInUser) {
+            loggedInUser.setPrivateAddress(input);
+        }
 
         return String.format("Successfully registered address for %s.", loggedInUser.getName());
     }
@@ -65,9 +83,12 @@ public class ChatProtocol extends Protocol implements ISendMessage {
         User[] onlineUsers = userStore.getOnlineUsers();
 
         for (User user : onlineUsers) {
-            if (user != loggedInUser) {
-                message = String.format("%s: %s", loggedInUser.getName(), message);
-                user.getProtocol().sendMessage(message);
+            synchronized (user) {
+                // also check if user is still logged in
+                if (user != loggedInUser && user.isOnline()) {
+                    message = String.format("%s: %s", loggedInUser.getName(), message);
+                    user.getProtocol().sendMessage(message);
+                }
             }
         }
 
@@ -80,11 +101,16 @@ public class ChatProtocol extends Protocol implements ISendMessage {
         }
 
         User user = userStore.getUser(username);
-        if (user == null || !user.getIsRegistered()) {
-            return String.format("$lookup|1|%s|Wrong username or user not reachable.", username);
+        String address;
+
+        synchronized (user) {
+            if (user == null || !user.isRegistered()) {
+                return String.format("$lookup|1|%s|Wrong username or user not reachable.", username);
+            }
+            address = user.getPrivateAddress();
         }
 
-        return String.format("$lookup|0|%s|%s", username, user.getPrivateAddress());
+        return String.format("$lookup|0|%s|%s", username, address);
     }
 
     private String lookup(String username) {
@@ -92,36 +118,53 @@ public class ChatProtocol extends Protocol implements ISendMessage {
             return "Not logged in.";
         }
         User user = userStore.getUser(username);
-        if (user == null || !user.getIsRegistered()) {
-            return "Wrong username or user not registered.";
+        String address;
+        synchronized (user) {
+            if (user == null || !user.isRegistered()) {
+                return "Wrong username or user not registered.";
+            }
+            address = user.getPrivateAddress();
         }
 
-        return user.getPrivateAddress();
+        return address;
     }
 
     private String login(String input) {
-        if (loggedInUser != null) {
-            return "$login|1|Already logged in.";
-        }
         String[] credentials = input.split(argsDelimiter);
-        String username = credentials[0];
-        String password = credentials[1];
 
         if (credentials.length != 2) {
             return "$login|1|Wrong command format.";
         }
 
-        if ((loggedInUser = userStore.Authenticate(username, password)) == null) {
+        String username = credentials[0];
+        String password = credentials[1];
+
+        User user = userStore.getUser(username);
+
+        if (user == null) {
             return "$login|1|Wrong username or password.";
         }
 
-        loggedInUser.setProtocol(this);
+        synchronized (user) {
+            if (loggedInUser != null || (user != null && user.isOnline())) {
+                return "$login|1|Already logged in.";
+            }
+
+            if (user == null || !user.login(password)) {
+                return "$login|1|Wrong username or password.";
+            }
+            user.setProtocol(this);
+        }
+
+        loggedInUser = user;
 
         return String.format("$login|0|%s|Successfully logged in.", username);
     }
 
-    @Override
     public void sendMessage(String message) {
+        if (!this.channel.isOpen()) {
+           return;
+        }
         try {
             this.channel.writeLine(String.format("$send|0|%s", message));
         } catch (IOException ex) {

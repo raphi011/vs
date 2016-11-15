@@ -4,8 +4,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import util.Config;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -22,7 +20,6 @@ public class UserStore {
     }
 
     public void load() {
-
         for (String key : config.listKeys()) {
             String user = userFromKey(key);
             String property = propertyFromKey(key);
@@ -66,14 +63,6 @@ public class UserStore {
     private String userFromKey(String key) {
         int ind = key.lastIndexOf('.');
         return key.substring(0,ind);
-    }
-
-    public User Authenticate(String userName, String password) {
-        User user = getUser(userName);
-        if (user != null && user.login(password)) {
-            return user;
-        }
-        return null;
     }
 
     public User[] getOnlineUsers() {

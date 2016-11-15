@@ -1,54 +1,680 @@
 Testsuite: test.ScenarioTest
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6,548 sec
+Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 114.323 sec
 ------------- Standard Output ---------------
 00_login_test.txt
-18:27:36.955		alice.vienna.at> !login alice.vienna.at 12345
+18:11:35.633		alice.vienna.at> !login alice.vienna.at 12345
 Successfully logged in.
-18:27:37.476		alice.vienna.at> !list
+18:11:36.166		alice.vienna.at> !list
 Online users:
-18:27:37.982		chatserver> !users
-18:27:37.982		chatserver:
-18:27:37.982		1. alice.vienna.at online
-18:27:37.982		2. bill.de offline
-18:27:38.482		chatserver> !exit
-18:27:38.982		alice.vienna.at> !exit
-18:27:38.984		alice.vienna.at:
-18:27:38.984		java.lang.reflect.InvocationTargetException
-18:27:38.984			at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-18:27:38.984			at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-18:27:38.984			at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-18:27:38.984			at java.lang.reflect.Method.invoke(Method.java:497)
-18:27:38.984			at cli.Shell$ShellCommandInvocationHandler.invoke(Shell.java:359)
-18:27:38.984			at cli.Shell.invoke(Shell.java:291)
-18:27:38.984			at cli.Shell.run(Shell.java:81)
-18:27:38.984			at client.Client.run(Client.java:91)
-18:27:38.984			at java.lang.Thread.run(Thread.java:745)
-18:27:38.984		Caused by: java.lang.NullPointerException
-18:27:38.984			at client.Client.exit(Client.java:222)
-18:27:38.984			... 9 more
+18:11:36.677		chatserver> !users
+18:11:36.678		chatserver:
+18:11:36.678		1. alice.vienna.at online
+18:11:36.678		2. bill.de offline
+18:11:36.678		3. max.us offline
+18:11:36.678		4. tom.ch offline
+18:11:37.180		chatserver> !exit
+18:11:37.682		alice.vienna.at> !exit
+################################################################################
+01_login_logout_test.txt
+18:11:46.196		alice.vienna.at> !login alice.vienna.at 12345
+Successfully logged in.
+18:11:46.698		tom.ch> !login notauser test
+Wrong username or password.
+18:11:47.201		max.us> !login max.us password
+Successfully logged in.
+18:11:47.703		chatserver> !users
+18:11:47.706		chatserver:
+18:11:47.706		1. alice.vienna.at online
+18:11:47.706		2. bill.de offline
+18:11:47.706		3. max.us online
+18:11:47.706		4. tom.ch offline
+18:11:48.207		tom.ch> !login wom.ch test
+Wrong username or password.
+18:11:48.709		tom.ch> !logout
+Not logged in.
+18:11:49.212		tom.ch> !login alice.vienna.at 12345
+Already logged in.
+18:11:49.718		tom.ch> !login tom.ch test
+Successfully logged in.
+18:11:50.220		alice.vienna.at> !login alice.vienna.at 12345
+Already logged in.
+18:11:50.721		max.us> !exit
+18:11:51.222		chatserver> !users
+18:11:51.224		chatserver:
+18:11:51.224		1. alice.vienna.at online
+18:11:51.224		2. bill.de offline
+18:11:51.224		3. max.us offline
+18:11:51.224		4. tom.ch online
+18:11:51.727		tom.ch> !logout
+Successfully logged out.
+18:11:52.230		chatserver> !users
+18:11:52.232		chatserver:
+18:11:52.232		1. alice.vienna.at online
+18:11:52.232		2. bill.de offline
+18:11:52.232		3. max.us offline
+18:11:52.232		4. tom.ch offline
+18:11:52.733		tom.ch> !login max.us password
+Already logged in.
+18:11:53.238		tom.ch> !logout
+Successfully logged out.
+18:11:53.740		tom.ch> !login tom.ch test
+Already logged in.
+18:11:54.243		chatserver> !users
+18:11:54.245		chatserver:
+18:11:54.245		1. alice.vienna.at online
+18:11:54.245		2. bill.de offline
+18:11:54.245		3. max.us offline
+18:11:54.245		4. tom.ch offline
+18:11:54.748		chatserver> !exit
+18:11:55.249		alice.vienna.at> !exit
+18:11:55.749		tom.ch> !exit
+################################################################################
+02_send_lastmsg_test.txt
+18:12:04.257		alice.vienna.at> !login alice.vienna.at 12345
+Successfully logged in.
+18:12:04.759		tom.ch> !send i am not logged in
+Not logged in.
+18:12:05.260		tom.ch> !login tom.ch test
+Successfully logged in.
+18:12:05.762		max.us> !login max.us password
+Successfully logged in.
+18:12:06.264		chatserver> !users
+18:12:06.266		chatserver:
+18:12:06.266		1. alice.vienna.at online
+18:12:06.266		2. bill.de offline
+18:12:06.266		3. max.us online
+18:12:06.266		4. tom.ch online
+18:12:06.768		tom.ch> !send i am a message
+tom.ch: i am a message
+tom.ch: tom.ch: i am a message
+18:12:07.268		tom.ch> !lastMsg
+18:12:07.269		tom.ch: No message received!
+18:12:07.770		alice.vienna.at> !lastMsg
+18:12:07.770		alice.vienna.at: tom.ch: tom.ch: i am a message
+18:12:08.271		max.us> !lastMsg
+18:12:08.272		max.us: tom.ch: i am a message
+18:12:08.773		max.us> !send i am the second message
+max.us: i am the second message
+max.us: max.us: i am the second message
+18:12:09.274		tom.ch> !lastMsg
+18:12:09.275		tom.ch: max.us: i am the second message
+18:12:09.776		alice.vienna.at> !lastMsg
+18:12:09.777		alice.vienna.at: max.us: max.us: i am the second message
+18:12:10.277		max.us> !lastMsg
+18:12:10.278		max.us: tom.ch: i am a message
+18:12:10.779		max.us> !logout
+Successfully logged out.
+18:12:11.281		max.us> !send i am not logged in
+max.us: max.us: i am not logged in
+max.us: i am not logged in
+18:12:11.783		chatserver> !users
+18:12:11.784		chatserver:
+18:12:11.784		1. alice.vienna.at online
+18:12:11.784		2. bill.de offline
+18:12:11.784		3. max.us offline
+18:12:11.784		4. tom.ch online
+18:12:12.286		chatserver> !exit
+18:12:12.787		alice.vienna.at> !exit
+18:12:13.288		tom.ch> !exit
+18:12:13.788		max.us> !exit
+################################################################################
+03_register_lookup_test.txt
+18:12:22.295		alice.vienna.at> !login alice.vienna.at 12345
+Successfully logged in.
+18:12:22.796		tom.ch> !register localhost:4444
+18:12:22.798		tom.ch: Not logged in.
+18:12:23.298		tom.ch> !login tom.ch test
+Successfully logged in.
+18:12:23.800		max.us> !lookup tom.ch
+Not logged in.
+18:12:24.302		max.us> !login max.us password
+Successfully logged in.
+18:12:24.804		chatserver> !users
+18:12:24.805		chatserver:
+18:12:24.805		1. alice.vienna.at online
+18:12:24.805		2. bill.de offline
+18:12:24.805		3. max.us online
+18:12:24.805		4. tom.ch online
+18:12:25.307		alice.vienna.at> !lookup notauser
+18:12:25.809		alice.vienna.at> !lookup tom.ch
+18:12:26.312		tom.ch> !register localhost:4444
+Successfully registered address for tom.ch.
+18:12:26.814		alice.vienna.at> !lookup tom.ch
+18:12:27.315		max.us> !lookup tom.ch
+localhost:4444
+18:12:27.817		max.us> !register localhost:5555
+Successfully registered address for max.us.
+18:12:28.319		tom.ch> !lookup max.us
+localhost:5555
+18:12:28.820		max.us> !logout
+Successfully logged out.
+18:12:29.322		max.us> !lookup tom.ch
+localhost:4444
+18:12:29.824		tom.ch> !lookup max.us
+Wrong username or user not registered.
+18:12:30.326		chatserver> !users
+18:12:30.327		chatserver:
+18:12:30.327		1. alice.vienna.at offline
+18:12:30.327		2. bill.de offline
+18:12:30.327		3. max.us offline
+18:12:30.327		4. tom.ch online
+18:12:30.829		chatserver> !exit
+18:12:31.330		alice.vienna.at> !exit
+18:12:31.830		tom.ch> !exit
+18:12:32.330		max.us> !exit
+################################################################################
+04_msg_test.txt
+18:12:40.837		alice.vienna.at> !login alice.vienna.at 12345
+Successfully logged in.
+18:12:41.338		tom.ch> !msg test test
+Not logged in.
+18:12:41.839		tom.ch> !login tom.ch test
+Successfully logged in.
+18:12:42.341		max.us> !login max.us password
+Successfully logged in.
+18:12:42.843		chatserver> !users
+18:12:42.845		chatserver:
+18:12:42.845		1. alice.vienna.at online
+18:12:42.845		2. bill.de offline
+18:12:42.845		3. max.us online
+18:12:42.845		4. tom.ch online
+18:12:43.346		tom.ch> !msg test test
+18:12:43.847		tom.ch> !msg max.us hallo max!
+18:12:44.350		max.us> !register localhost:4444
+Successfully registered address for max.us.
+18:12:44.851		alice.vienna.at> !lookup max.us
+localhost:4444
+18:12:45.352		tom.ch> !msg max.us hey max!
+18:12:45.854		alice.vienna.at> !msg max.us i like your hair!
+alice.vienna.at: i like your hair!
+max.us replied with !ack.
+18:12:46.356		tom.ch> !msg max.us waddup?!
+18:12:46.861		max.us> !logout
+Successfully logged out.
+18:12:47.362		max.us> !msg test test
+18:12:47.865		alice.vienna.at> !msg max.us still online?
+Wrong username or user not reachable.
+18:12:48.367		chatserver> !users
+18:12:48.368		chatserver:
+18:12:48.368		1. alice.vienna.at online
+18:12:48.368		2. bill.de offline
+18:12:48.368		3. max.us offline
+18:12:48.368		4. tom.ch offline
+18:12:48.870		chatserver> !exit
+18:12:49.370		alice.vienna.at> !exit
+18:12:49.870		tom.ch> !exit
+18:12:50.371		max.us> !exit
+################################################################################
+05_list_test.txt
+18:12:58.881		alice.vienna.at> !login alice.vienna.at 12345
+Successfully logged in.
+18:12:59.381		tom.ch> !list
+Online users:
+18:12:59.882		max.us> !list
+Online users:
+18:13:00.387		tom.ch> !login tom.ch test
+Successfully logged in.
+18:13:00.888		tom.ch> !list
+Online users:
+18:13:01.389		tom.ch> !list
+Online users:
+18:13:01.889		max.us> !login max.us password
+Successfully logged in.
+18:13:02.390		chatserver> !users
+18:13:02.390		chatserver:
+18:13:02.390		1. alice.vienna.at online
+18:13:02.390		2. bill.de offline
+18:13:02.390		3. max.us online
+18:13:02.390		4. tom.ch online
+18:13:02.897		alice.vienna.at> !list
+Online users:
+18:13:03.402		max.us> !logout
+Successfully logged out.
+18:13:03.902		chatserver> !users
+18:13:03.903		chatserver:
+18:13:03.903		1. alice.vienna.at online
+18:13:03.903		2. bill.de offline
+18:13:03.903		3. max.us offline
+18:13:03.903		4. tom.ch online
+18:13:04.403		tom.ch> !list
+Online users:
+18:13:04.903		max.us> !list
+Online users:
+18:13:05.405		chatserver> !exit
+18:13:05.905		alice.vienna.at> !exit
+18:13:06.405		tom.ch> !exit
+18:13:06.905		max.us> !exit
+################################################################################
+06_mixed_test.txt
+18:13:15.411		alice.vienna.at> !login alice.vienna.at 12345
+Successfully logged in.
+18:13:15.912		tom.ch> !list
+Online users:
+18:13:16.412		tom.ch> !login tom.ch test
+Successfully logged in.
+18:13:16.913		max.us> !login max.us password
+Successfully logged in.
+18:13:17.414		chatserver> !users
+18:13:17.414		chatserver:
+18:13:17.414		1. alice.vienna.at online
+18:13:17.414		2. bill.de offline
+18:13:17.414		3. max.us online
+18:13:17.414		4. tom.ch online
+18:13:17.914		alice.vienna.at> !send hi everybody!
+alice.vienna.at: hi everybody!
+alice.vienna.at: alice.vienna.at: hi everybody!
+18:13:18.414		alice.vienna.at> !lastMsg
+18:13:18.415		alice.vienna.at: No message received!
+18:13:18.915		tom.ch> !lastMsg
+18:13:18.915		tom.ch: alice.vienna.at: hi everybody!
+18:13:19.416		max.us> !lastMsg
+18:13:19.416		max.us: alice.vienna.at: alice.vienna.at: hi everybody!
+18:13:19.916		max.us> !register localhost:9999
+Successfully registered address for max.us.
+18:13:20.416		tom.ch> !lookup max.us
+localhost:9999
+18:13:20.917		tom.ch> !msg max.us hi max!
+tom.ch: hi max!
+max.us replied with !ack.
+18:13:21.417		alice.vienna.at> !list
+Online users:
+18:13:21.919		tom.ch> !logout
+Successfully logged out.
+18:13:22.419		tom.ch> !exit
+18:13:22.919		chatserver> !users
+18:13:22.920		chatserver:
+18:13:22.920		1. alice.vienna.at online
+18:13:22.920		2. bill.de offline
+18:13:22.920		3. max.us online
+18:13:22.920		4. tom.ch offline
+18:13:23.420		alice.vienna.at> !list
+Online users:
+18:13:23.921		alice.vienna.at> !list
+Online users:
+18:13:24.422		chatserver> !exit
+18:13:24.922		alice.vienna.at> !exit
+18:13:25.422		max.us> !exit
 ################################################################################
 ------------- ---------------- ---------------
 ------------- Standard Error -----------------
-Nov 10, 2016 6:27:32 PM connection.ConnectionAgent run
-INFORMATION: udpListener starting up
-Nov 10, 2016 6:27:32 PM connection.ConnectionAgent run
-INFORMATION: tcpListener starting up
-Nov 10, 2016 6:27:34 PM connection.ConnectionAgent run
-INFORMATION: udpListener starting up
-Nov 10, 2016 6:27:34 PM connection.ConnectionAgent run
-INFORMATION: tcpListener connected
-Nov 10, 2016 6:27:37 PM connection.ConnectionAgent run
-INFORMATION: udpListener connected
-Nov 10, 2016 6:27:37 PM connection.ConnectionAgent run
-INFORMATION: udpListener connected
-Nov 10, 2016 6:27:38 PM connection.ConnectionAgent run
-INFORMATION: shutting down
-Nov 10, 2016 6:27:38 PM connection.ConnectionAgent run
-INFORMATION: shutting down
-Nov 10, 2016 6:27:38 PM connection.ConnectionAgent run
-INFORMATION: shutting down
-Nov 10, 2016 6:27:38 PM connection.ConnectionAgent run
-WARNUNG: java.net.SocketException: Socket closed
+Nov 12, 2016 6:11:31 PM connection.ConnectionAgent run
+INFO: tcpListener starting up
+Nov 12, 2016 6:11:31 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:11:33 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:11:33 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:11:36 PM connection.ConnectionAgent run
+INFO: udpListener connected
+Nov 12, 2016 6:11:36 PM connection.ConnectionAgent run
+INFO: udpListener connected
+Nov 12, 2016 6:11:37 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:11:37 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:11:37 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:11:38 PM connection.ConnectionAgent run
+INFO: tcpListener starting up
+Nov 12, 2016 6:11:38 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:11:40 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:11:40 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:11:42 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:11:42 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:11:44 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:11:44 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+AssertionError: String must contain 'user already logged in on another client.' but was:
+18:11:49.212		tom.ch> !login alice.vienna.at 12345
+already logged in.
+Expected: a string containing "user already logged in on another client."
+     but: was "18:11:49.212		tom.ch> !login alice.vienna.at 12345
+already logged in."
+Nov 12, 2016 6:11:50 PM connection.ConnectionAgent run
+INFO: shutting down
+AssertionError: String must contain 'successfully logged in.' but was:
+18:11:52.733		tom.ch> !login max.us password
+already logged in.
+Expected: a string containing "successfully logged in."
+     but: was "18:11:52.733		tom.ch> !login max.us password
+already logged in."
+AssertionError: String must contain 'successfully logged in.' but was:
+18:11:53.740		tom.ch> !login tom.ch test
+already logged in.
+Expected: a string containing "successfully logged in."
+     but: was "18:11:53.740		tom.ch> !login tom.ch test
+already logged in."
+AssertionError: String must match pattern '.*alice.*online.*bill.*offline.*max.*offline.*tom.*online.*' but was:
+18:11:54.243		chatserver> !users
+18:11:54.245		chatserver:
+18:11:54.245		1. alice.vienna.at online
+18:11:54.245		2. bill.de offline
+18:11:54.245		3. max.us offline
+18:11:54.245		4. tom.ch offline
+Expected: matches pattern .*alice.*online.*bill.*offline.*max.*offline.*tom.*online.*
+     but: was "18:11:54.243\t\tchatserver> !users\n18:11:54.245\t\tchatserver:\n18:11:54.245\t\t1. alice.vienna.at online\n18:11:54.245\t\t2. bill.de offline\n18:11:54.245\t\t3. max.us offline\n18:11:54.245\t\t4. tom.ch offline"
+Nov 12, 2016 6:11:54 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:11:54 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:11:55 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:11:55 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:11:56 PM connection.ConnectionAgent run
+INFO: tcpListener starting up
+Nov 12, 2016 6:11:56 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:11:58 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:11:58 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:12:00 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:12:00 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:12:02 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:12:02 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+AssertionError: String must contain 'not logged in.' but was: '18:12:11.281		max.us> !send i am not logged in'
+Expected: a string containing "not logged in."
+     but: was "18:12:11.281		max.us> !send i am not logged in"
+Nov 12, 2016 6:12:12 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:12 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:12 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:13 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:13 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:14 PM connection.ConnectionAgent run
+INFO: tcpListener starting up
+Nov 12, 2016 6:12:14 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:12:16 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:12:16 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:12:18 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:12:18 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:12:20 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:12:20 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Exception in thread "pool-14-thread-1" java.lang.NullPointerException
+	at chatserver.protocol.ChatProtocol.lookup(ChatProtocol.java:122)
+	at chatserver.protocol.ChatProtocol.selectCommand(ChatProtocol.java:34)
+	at connection.Protocol.nextCommand(Protocol.java:37)
+	at connection.Connection.run(Connection.java:40)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+AssertionError: String must contain 'wrong username or user not registered.' but was: '18:12:25.307		alice.vienna.at> !lookup notauser'
+Expected: a string containing "wrong username or user not registered."
+     but: was "18:12:25.307		alice.vienna.at> !lookup notauser"
+AssertionError: String must contain 'wrong username or user not registered.' but was: '18:12:25.809		alice.vienna.at> !lookup tom.ch'
+Expected: a string containing "wrong username or user not registered."
+     but: was "18:12:25.809		alice.vienna.at> !lookup tom.ch"
+Nov 12, 2016 6:12:26 PM connection.ConnectionAgent run
+INFO: tcpListener starting up
+AssertionError: String must contain 'localhost:4444' but was: '18:12:26.814		alice.vienna.at> !lookup tom.ch'
+Expected: a string containing "localhost:4444"
+     but: was "18:12:26.814		alice.vienna.at> !lookup tom.ch"
+Nov 12, 2016 6:12:27 PM connection.ConnectionAgent run
+INFO: tcpListener starting up
+AssertionError: String must contain 'not logged in.' but was:
+18:12:29.322		max.us> !lookup tom.ch
+localhost:4444
+Expected: a string containing "not logged in."
+     but: was "18:12:29.322		max.us> !lookup tom.ch
+localhost:4444"
+AssertionError: String must match pattern '.*alice.*online.*bill.*offline.*max.*offline.*tom.*online.*' but was:
+18:12:30.326		chatserver> !users
+18:12:30.327		chatserver:
+18:12:30.327		1. alice.vienna.at offline
+18:12:30.327		2. bill.de offline
+18:12:30.327		3. max.us offline
+18:12:30.327		4. tom.ch online
+Expected: matches pattern .*alice.*online.*bill.*offline.*max.*offline.*tom.*online.*
+     but: was "18:12:30.326\t\tchatserver> !users\n18:12:30.327\t\tchatserver:\n18:12:30.327\t\t1. alice.vienna.at offline\n18:12:30.327\t\t2. bill.de offline\n18:12:30.327\t\t3. max.us offline\n18:12:30.327\t\t4. tom.ch online"
+Nov 12, 2016 6:12:30 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:30 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:31 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:31 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:31 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:32 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:32 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:32 PM connection.ConnectionAgent run
+INFO: tcpListener starting up
+Nov 12, 2016 6:12:32 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:12:34 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:12:34 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:12:36 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:12:36 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:12:38 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:12:38 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Exception in thread "pool-21-thread-2" java.lang.NullPointerException
+	at chatserver.protocol.ChatProtocol.implicitLookup(ChatProtocol.java:106)
+	at chatserver.protocol.ChatProtocol.selectCommand(ChatProtocol.java:35)
+	at connection.Protocol.nextCommand(Protocol.java:37)
+	at connection.Connection.run(Connection.java:40)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+AssertionError: String must contain 'wrong username or user not reachable.' but was: '18:12:43.346		tom.ch> !msg test test'
+Expected: a string containing "wrong username or user not reachable."
+     but: was "18:12:43.346		tom.ch> !msg test test"
+AssertionError: String must contain 'wrong username or user not reachable.' but was: '18:12:43.847		tom.ch> !msg max.us hallo max!'
+Expected: a string containing "wrong username or user not reachable."
+     but: was "18:12:43.847		tom.ch> !msg max.us hallo max!"
+Nov 12, 2016 6:12:44 PM connection.ConnectionAgent run
+INFO: tcpListener starting up
+AssertionError: String must contain 'max.us replied with !ack.' but was: '18:12:45.352		tom.ch> !msg max.us hey max!'
+Expected: a string containing "max.us replied with !ack."
+     but: was "18:12:45.352		tom.ch> !msg max.us hey max!"
+Nov 12, 2016 6:12:45 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Exception in thread "pool-21-thread-3" java.lang.NullPointerException
+	at chatserver.protocol.ChatProtocol.implicitLookup(ChatProtocol.java:106)
+	at chatserver.protocol.ChatProtocol.selectCommand(ChatProtocol.java:35)
+	at connection.Protocol.nextCommand(Protocol.java:37)
+	at connection.Connection.run(Connection.java:40)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+AssertionError: String must contain 'not logged in.' but was: '18:12:47.362		max.us> !msg test test'
+Expected: a string containing "not logged in."
+     but: was "18:12:47.362		max.us> !msg test test"
+AssertionError: String must match pattern '.*alice.*online.*bill.*offline.*max.*offline.*tom.*online.*' but was:
+18:12:48.367		chatserver> !users
+18:12:48.368		chatserver:
+18:12:48.368		1. alice.vienna.at online
+18:12:48.368		2. bill.de offline
+18:12:48.368		3. max.us offline
+18:12:48.368		4. tom.ch offline
+Expected: matches pattern .*alice.*online.*bill.*offline.*max.*offline.*tom.*online.*
+     but: was "18:12:48.367\t\tchatserver> !users\n18:12:48.368\t\tchatserver:\n18:12:48.368\t\t1. alice.vienna.at online\n18:12:48.368\t\t2. bill.de offline\n18:12:48.368\t\t3. max.us offline\n18:12:48.368\t\t4. tom.ch offline"
+Nov 12, 2016 6:12:48 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:48 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:49 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:49 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:50 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:50 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:12:50 PM connection.ConnectionAgent run
+INFO: tcpListener starting up
+Nov 12, 2016 6:12:50 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:12:52 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:12:52 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:12:54 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:12:54 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:12:56 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:12:56 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:12:59 PM connection.ConnectionAgent run
+INFO: udpListener connected
+Nov 12, 2016 6:12:59 PM connection.ConnectionAgent run
+INFO: udpListener connected
+AssertionError: String must match pattern '.*Online users:.*alice.vienna.at.*' but was:
+18:12:59.381		tom.ch> !list
+Online users:
+Expected: matches pattern .*Online users:.*alice.vienna.at.*
+     but: was "18:12:59.381\t\ttom.ch> !list\nOnline users:"
+Nov 12, 2016 6:12:59 PM connection.ConnectionAgent run
+INFO: udpListener connected
+Nov 12, 2016 6:12:59 PM connection.ConnectionAgent run
+INFO: udpListener connected
+Nov 12, 2016 6:13:00 PM connection.ConnectionAgent run
+INFO: udpListener connected
+Nov 12, 2016 6:13:00 PM connection.ConnectionAgent run
+INFO: udpListener connected
+AssertionError: String must match pattern '.*Online users:.*alice.vienna.at.*tom.ch.*' but was:
+18:13:00.888		tom.ch> !list
+Online users:
+Expected: matches pattern .*Online users:.*alice.vienna.at.*tom.ch.*
+     but: was "18:13:00.888\t\ttom.ch> !list\nOnline users:"
+Nov 12, 2016 6:13:01 PM connection.ConnectionAgent run
+INFO: udpListener connected
+Nov 12, 2016 6:13:01 PM connection.ConnectionAgent run
+INFO: udpListener connected
+Nov 12, 2016 6:13:02 PM connection.ConnectionAgent run
+INFO: udpListener connected
+Nov 12, 2016 6:13:02 PM connection.ConnectionAgent run
+INFO: udpListener connected
+AssertionError: String must match pattern '.*Online users:.*alice.vienna.at.*max.us.*tom.ch.*' but was:
+18:13:02.897		alice.vienna.at> !list
+Online users:
+Expected: matches pattern .*Online users:.*alice.vienna.at.*max.us.*tom.ch.*
+     but: was "18:13:02.897\t\talice.vienna.at> !list\nOnline users:"
+Nov 12, 2016 6:13:04 PM connection.ConnectionAgent run
+INFO: udpListener connected
+Nov 12, 2016 6:13:04 PM connection.ConnectionAgent run
+INFO: udpListener connected
+Nov 12, 2016 6:13:04 PM connection.ConnectionAgent run
+INFO: udpListener connected
+Nov 12, 2016 6:13:04 PM connection.ConnectionAgent run
+INFO: udpListener connected
+AssertionError: String must match pattern '.*Online users:.*alice.vienna.at.*tom.ch.*' but was:
+18:13:04.903		max.us> !list
+Online users:
+Expected: matches pattern .*Online users:.*alice.vienna.at.*tom.ch.*
+     but: was "18:13:04.903\t\tmax.us> !list\nOnline users:"
+Nov 12, 2016 6:13:05 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:13:05 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:13:05 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:13:06 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:13:06 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:13:07 PM connection.ConnectionAgent run
+INFO: tcpListener starting up
+Nov 12, 2016 6:13:07 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:13:09 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:13:09 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:13:11 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:13:11 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:13:13 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:13:13 PM connection.ConnectionAgent run
+INFO: udpListener starting up
+Nov 12, 2016 6:13:15 PM connection.ConnectionAgent run
+INFO: udpListener connected
+Nov 12, 2016 6:13:15 PM connection.ConnectionAgent run
+INFO: udpListener connected
+AssertionError: String must match pattern '.*Online users:.*alice.vienna.at.*' but was:
+18:13:15.912		tom.ch> !list
+Online users:
+Expected: matches pattern .*Online users:.*alice.vienna.at.*
+     but: was "18:13:15.912\t\ttom.ch> !list\nOnline users:"
+Nov 12, 2016 6:13:19 PM connection.ConnectionAgent run
+INFO: tcpListener starting up
+Nov 12, 2016 6:13:20 PM connection.ConnectionAgent run
+INFO: tcpListener connected
+Nov 12, 2016 6:13:21 PM connection.ConnectionAgent run
+INFO: udpListener connected
+Nov 12, 2016 6:13:21 PM connection.ConnectionAgent run
+INFO: udpListener connected
+AssertionError: String must match pattern '.*users:.*alice.*max.*tom.*' but was:
+18:13:21.417		alice.vienna.at> !list
+Online users:
+Expected: matches pattern .*users:.*alice.*max.*tom.*
+     but: was "18:13:21.417\t\talice.vienna.at> !list\nOnline users:"
+Nov 12, 2016 6:13:22 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:13:23 PM connection.ConnectionAgent run
+INFO: udpListener connected
+Nov 12, 2016 6:13:23 PM connection.ConnectionAgent run
+INFO: udpListener connected
+AssertionError: String must match pattern '.*users:.*alice.*max.*' but was:
+18:13:23.420		alice.vienna.at> !list
+Online users:
+Expected: matches pattern .*users:.*alice.*max.*
+     but: was "18:13:23.420\t\talice.vienna.at> !list\nOnline users:"
+Nov 12, 2016 6:13:23 PM connection.ConnectionAgent run
+INFO: udpListener connected
+Nov 12, 2016 6:13:23 PM connection.ConnectionAgent run
+INFO: udpListener connected
+Nov 12, 2016 6:13:24 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:13:24 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:13:24 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:13:25 PM connection.ConnectionAgent run
+INFO: shutting down
+Nov 12, 2016 6:13:25 PM connection.ConnectionAgent run
+INFO: shutting down
 ------------- ---------------- ---------------
 
-Testcase: 00_login_test took 6,536 sec
+Testcase: 00_login_test took 6.57 sec
+Testcase: 01_login_logout_test took 18.059 sec
+Testcase: 02_send_lastmsg_test took 18.038 sec
+Testcase: 03_register_lookup_test took 18.541 sec
+Testcase: 04_msg_test took 18.04 sec
+Testcase: 05_list_test took 16.535 sec
+Testcase: 06_mixed_test took 18.516 sec

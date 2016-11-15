@@ -13,9 +13,15 @@ public class UdpListener implements IListener {
 
     @Override
     public IChannel accept() throws IOException {
+        return accept(0);
+    }
+
+    @Override
+    public IChannel accept(int timeout) throws IOException {
         byte[] buffer = new byte[1024];
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
         datagramSocket.receive(packet);
+
 
         IChannel channel = new UdpChannel(datagramSocket, packet);
         channel.open();

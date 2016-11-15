@@ -1,5 +1,6 @@
 package client.protocol;
 
+import channel.IChannel;
 import connection.Protocol;
 
 import java.io.PrintStream;
@@ -8,8 +9,8 @@ public class PrivateChatProtocol extends Protocol {
     private final String username;
     private final PrintStream out;
 
-    public PrivateChatProtocol(String username, PrintStream out) {
-        super("\\|");
+    public PrivateChatProtocol(String username, PrintStream out, IChannel channel) {
+        super("\\|", channel);
         this.username = username;
         this.out = out;
     }

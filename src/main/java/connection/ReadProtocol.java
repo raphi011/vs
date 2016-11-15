@@ -1,9 +1,11 @@
 package connection;
 
+import channel.IChannel;
+
 public class ReadProtocol extends Protocol {
 
-    public ReadProtocol() {
-        super("");
+    public ReadProtocol(IChannel channel) {
+        super("", channel);
     }
 
     @Override
