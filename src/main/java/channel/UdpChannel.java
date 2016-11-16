@@ -71,16 +71,15 @@ public class UdpChannel implements IChannel {
         }
 
         int newPos = content.indexOf('\n', pos);
+        String line;
 
         if (newPos == -1) {
-            newPos = length;
+            line = content.substring(pos, length);
+            pos = length;
+        } else {
+            line = content.substring(pos, newPos);
+            pos = newPos + 1;
         }
-
-        String line = content.substring(pos,
-                                        newPos == -1 ?
-                                            content.length() :
-                                            newPos);
-        pos = newPos;
 
         return line;
     }

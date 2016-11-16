@@ -60,6 +60,8 @@ public class ChatProtocol extends Protocol {
             loggedInUser.logout();
         }
 
+        loggedInUser = null;
+
         return "$logout|0|Successfully logged out.";
     }
 
@@ -103,10 +105,15 @@ public class ChatProtocol extends Protocol {
         User user = userStore.getUser(username);
         String address;
 
+        if (user == null) {
+            return String.format("$lookup|1|%s|Wrong username or user not reachable.", username);
+        }
+
         synchronized (user) {
-            if (user == null || !user.isRegistered()) {
+            if (!user.isRegistered()) {
                 return String.format("$lookup|1|%s|Wrong username or user not reachable.", username);
             }
+
             address = user.getPrivateAddress();
         }
 
@@ -117,10 +124,17 @@ public class ChatProtocol extends Protocol {
         if (loggedInUser == null) {
             return "Not logged in.";
         }
+
         User user = userStore.getUser(username);
+
+        if (user == null) {
+            return "Wrong username or user not registered.";
+        }
+
         String address;
+
         synchronized (user) {
-            if (user == null || !user.isRegistered()) {
+            if (!user.isRegistered()) {
                 return "Wrong username or user not registered.";
             }
             address = user.getPrivateAddress();
@@ -146,8 +160,11 @@ public class ChatProtocol extends Protocol {
         }
 
         synchronized (user) {
-            if (loggedInUser != null || (user != null && user.isOnline())) {
+            if (loggedInUser != null) {
                 return "$login|1|Already logged in.";
+            }
+            if (user != null && user.isOnline()) {
+                return "$login|1|User already logged in on another client.";
             }
 
             if (user == null || !user.login(password)) {

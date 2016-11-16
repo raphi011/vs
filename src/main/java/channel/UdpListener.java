@@ -22,7 +22,6 @@ public class UdpListener implements IListener {
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
         datagramSocket.receive(packet);
 
-
         IChannel channel = new UdpChannel(datagramSocket, packet);
         channel.open();
         return channel;

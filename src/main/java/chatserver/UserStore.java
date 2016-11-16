@@ -68,7 +68,7 @@ public class UserStore {
     public User[] getOnlineUsers() {
         ArrayList<User> onlineUsers = new ArrayList<>();
 
-        for (User user : getUsers()) {
+        for (User user : getUsersSorted()) {
             if (user.isOnline()) {
                 onlineUsers.add(user);
             }
