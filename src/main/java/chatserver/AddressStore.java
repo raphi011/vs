@@ -13,7 +13,8 @@ public class AddressStore {
         this.nameServer = nameServer;
     }
 
-    public void setPrivateAddress(String name, String address) throws InvalidDomainException, AlreadyRegisteredException {
+    public void setPrivateAddress(String name, String address)
+            throws InvalidDomainException, AlreadyRegisteredException, RemoteException {
         try {
             nameServer.registerUser(name,address);
         } catch (RemoteException ex) {
@@ -21,22 +22,18 @@ public class AddressStore {
         }
     }
 
-    public String getPrivateAddress(String name) {
+    public String getPrivateAddress(String name) throws RemoteException {
         String [] nameParts = name.split(".");
         INameserverForChatserver currentNameServer = nameServer;
         String address = "";
 
-        try {
-            for (int i = nameParts.length - 1; i > 0; i--) {
-                String subdomain = nameParts[i];
-                currentNameServer = currentNameServer.getNameserver(subdomain);
+        for (int i = nameParts.length - 1; i > 0; i--) {
+            String subdomain = nameParts[i];
+            currentNameServer = currentNameServer.getNameserver(subdomain);
 
-                if (i == 1) {
-                    address = currentNameServer.lookup(name);
-                }
+            if (i == 1) {
+                address = currentNameServer.lookup(name);
             }
-        } catch (RemoteException ex) {
-
         }
 
         return address;

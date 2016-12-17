@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
+import java.rmi.RemoteException;
 
 public class ChatProtocol extends Protocol {
     private final Log log = LogFactory.getLog(ChatProtocol.class);
@@ -80,7 +81,7 @@ public class ChatProtocol extends Protocol {
                 addressStore.setPrivateAddress(loggedInUser.getName(), input);
                 loggedInUser.setIsRegistered(true);
                 return String.format("Successfully registered address for %s.", loggedInUser.getName());
-            } catch (InvalidDomainException | AlreadyRegisteredException ex) {
+            } catch (InvalidDomainException | AlreadyRegisteredException | RemoteException ex) {
                 return String.format(ex.getMessage());
             }
         }
@@ -123,7 +124,11 @@ public class ChatProtocol extends Protocol {
                 return String.format("$lookup|1|%s|Wrong username or user not reachable.", username);
             }
 
-            address = addressStore.getPrivateAddress(user.getName());
+            try {
+                address = addressStore.getPrivateAddress(user.getName());
+            } catch (RemoteException ex) {
+                return String.format("$lookup|1|%s|%s.", username, ex.getMessage());
+            }
         }
 
         return String.format("$lookup|0|%s|%s", username, address);
@@ -147,10 +152,13 @@ public class ChatProtocol extends Protocol {
                 return "Wrong username or user not registered.";
             }
 
-            address = addressStore.getPrivateAddress(user.getName());
+            try {
+                address = addressStore.getPrivateAddress(user.getName());
+                return address;
+            } catch (RemoteException ex) {
+                return ex.getMessage();
+            }
         }
-
-        return address;
     }
 
     private String login(String input) {
