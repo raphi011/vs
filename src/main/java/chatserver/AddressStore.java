@@ -32,7 +32,7 @@ public class AddressStore {
             currentNameServer = currentNameServer.getNameserver(subdomain);
 
             if (i == 1) {
-                address = currentNameServer.lookup(name);
+                address = currentNameServer.lookup(nameParts[0]);
             }
         }
 
