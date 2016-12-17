@@ -8,7 +8,8 @@ public class User implements Comparable<User> {
     private final String name;
 
     private boolean isOnline;
-    private String privateAddress;
+    private boolean isRegistered;
+
     private ChatProtocol protocol;
 
     public User(String name, String password) {
@@ -30,8 +31,8 @@ public class User implements Comparable<User> {
 
     public void logout() {
         isOnline = false;
+        isRegistered = false;
         protocol = null;
-        privateAddress = null;
     }
 
     public boolean login(String password) {
@@ -41,18 +42,6 @@ public class User implements Comparable<User> {
         }
 
         return false;
-    }
-
-    public void setPrivateAddress(String address) {
-        this.privateAddress = address;
-    }
-
-    public String getPrivateAddress() {
-        return this.privateAddress;
-    }
-
-    public boolean isRegistered() {
-        return !(privateAddress == null || privateAddress.isEmpty());
     }
 
     @Override
@@ -71,4 +60,11 @@ public class User implements Comparable<User> {
         return protocol;
     }
 
+    public void setIsRegistered(boolean isRegistered) {
+        this.isRegistered = isRegistered;
+    }
+
+    public boolean getIsRegistered() {
+        return isRegistered;
+    }
 }

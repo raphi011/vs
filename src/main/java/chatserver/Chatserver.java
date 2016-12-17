@@ -5,6 +5,10 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
 import channel.TcpListener;
 import channel.UdpListener;
@@ -13,6 +17,7 @@ import chatserver.protocol.InfoProtocolFactory;
 import cli.Command;
 import cli.Shell;
 import connection.ConnectionAgent;
+import nameserver.INameserverForChatserver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import util.Config;
@@ -26,9 +31,11 @@ public class Chatserver implements IChatserverCli, Runnable {
 	private final InputStream userRequestStream;
 	private final PrintStream userResponseStream;
 
+	private INameserverForChatserver nameServer;
 	private Shell shell;
 	private ConnectionAgent tcpListener;
 	private ConnectionAgent udpListener;
+	private AddressStore addressStore;
 
 	/**
 	 * @param componentName
@@ -53,13 +60,25 @@ public class Chatserver implements IChatserverCli, Runnable {
 	public void run() {
 		int tcpPort = config.getInt("tcp.port");
 		int udpPort = config.getInt("udp.port");
+		String rootId = config.getString("root_id");
+		String registryHost = config.getString("registry.host");
+		int registryPort = config.getInt("registry.port");
+
+		try {
+			Registry registry = LocateRegistry.getRegistry(registryHost, registryPort);
+			nameServer =  (INameserverForChatserver)registry.lookup(rootId);
+			addressStore = new AddressStore(nameServer);
+		} catch (RemoteException | NotBoundException ex) {
+			log.error("Error contacting nameserver", ex);
+            System.exit(-1);
+		}
 
 		userStore.load();
 
         try {
             tcpListener = new ConnectionAgent("tcpListener",
 									   new TcpListener(new ServerSocket(tcpPort)),
-									   new ChatProtocolFactory(userStore));
+									   new ChatProtocolFactory(userStore, addressStore));
 			udpListener = new ConnectionAgent("udpListener",
 									   new UdpListener(new DatagramSocket(udpPort)),
 									   new InfoProtocolFactory(userStore));

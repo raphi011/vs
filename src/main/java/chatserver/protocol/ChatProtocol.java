@@ -1,9 +1,12 @@
 package chatserver.protocol;
 
 import channel.IChannel;
+import chatserver.AddressStore;
 import chatserver.User;
 import chatserver.UserStore;
 import connection.Protocol;
+import nameserver.exceptions.AlreadyRegisteredException;
+import nameserver.exceptions.InvalidDomainException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -11,12 +14,14 @@ import java.io.IOException;
 
 public class ChatProtocol extends Protocol {
     private final Log log = LogFactory.getLog(ChatProtocol.class);
+    private final AddressStore addressStore;
 
     private User loggedInUser;
     private final UserStore userStore;
 
-    public ChatProtocol(UserStore userStore, IChannel channel) {
+    public ChatProtocol(UserStore userStore, AddressStore addressStore, IChannel channel) {
         super(" ", channel);
+        this.addressStore = addressStore;
         this.userStore = userStore;
     }
 
@@ -71,10 +76,14 @@ public class ChatProtocol extends Protocol {
         }
 
         synchronized (loggedInUser) {
-            loggedInUser.setPrivateAddress(input);
+            try {
+                addressStore.setPrivateAddress(loggedInUser.getName(), input);
+                loggedInUser.setIsRegistered(true);
+                return String.format("Successfully registered address for %s.", loggedInUser.getName());
+            } catch (InvalidDomainException | AlreadyRegisteredException ex) {
+                return String.format(ex.getMessage());
+            }
         }
-
-        return String.format("Successfully registered address for %s.", loggedInUser.getName());
     }
 
     private String send(String message) {
@@ -110,11 +119,11 @@ public class ChatProtocol extends Protocol {
         }
 
         synchronized (user) {
-            if (!user.isRegistered()) {
+            if (!user.getIsRegistered()) {
                 return String.format("$lookup|1|%s|Wrong username or user not reachable.", username);
             }
 
-            address = user.getPrivateAddress();
+            address = addressStore.getPrivateAddress(user.getName());
         }
 
         return String.format("$lookup|0|%s|%s", username, address);
@@ -134,10 +143,11 @@ public class ChatProtocol extends Protocol {
         String address;
 
         synchronized (user) {
-            if (!user.isRegistered()) {
+            if (!user.getIsRegistered()) {
                 return "Wrong username or user not registered.";
             }
-            address = user.getPrivateAddress();
+
+            address = addressStore.getPrivateAddress(user.getName());
         }
 
         return address;
