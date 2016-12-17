@@ -23,7 +23,7 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 	private InputStream userRequestStream;
 	private PrintStream userResponseStream;
 
-	private ConcurrentHashMap<String, Nameserver> children;
+	private ConcurrentHashMap<String, INameserver> children;
 	private ConcurrentHashMap<String, String> users;
 
 	private Registry registry;
@@ -70,13 +70,13 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 	public void run() {
 		try {
             if (isRootServer) {
-                registry = LocateRegistry.getRegistry(Integer.parseInt(port));
+                registry = LocateRegistry.createRegistry(Integer.parseInt(port));
 				INameserver stub1 = (INameserver)UnicastRemoteObject.exportObject(this, 0);
 				registry.bind(rootNameServerID, stub1);
             } else {
                 registry = LocateRegistry.getRegistry(host, Integer.parseInt(port));
 				INameserver stub = (INameserver)registry.lookup(rootNameServerID);
-				stub.registerNameserver(domain, (Nameserver)UnicastRemoteObject.exportObject(this,0), null);
+				stub.registerNameserver(domain, (INameserver)UnicastRemoteObject.exportObject(this,0), null);
             }
 		} catch (Exception e) {
 			System.err.println("Client exception: " + e.toString());
@@ -172,7 +172,7 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 				throw new InvalidDomainException("No domain with name "+end+" found");
 			}
 
-			INameserver userTest = (INameserver)children.get(next);
+			INameserver userTest = (INameserver)children.get(end);
 			//close read semaphore children
 			System.out.println("RegisterUser recursion: " + next);
 			userTest.registerUser(next, address);
@@ -211,12 +211,6 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 								   INameserverForChatserver nameserverForChatserver)
 			throws RemoteException, AlreadyRegisteredException,
 			InvalidDomainException {
-		Nameserver n;
-		if (nameserver.getClass().equals(Nameserver.class)) {
-			n = (Nameserver)nameserver;
-		} else {
-			throw new RemoteException("This should never happen, NameserverCast");
-		}
 
 		int index = domain.lastIndexOf('.');
 		if(index==-1){
@@ -225,7 +219,7 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 				//close write semaphore domain
 				throw new AlreadyRegisteredException("domain already registered");
 			}
-			children.put(domain, n);
+			children.put(domain, nameserver);
 			System.out.println("Successfully inserted " + domain);
 			//close write semaphore domain /children
 		}else{
@@ -237,11 +231,11 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 				//close read semaphore children
 				throw new InvalidDomainException("No domain with name "+end+" found");
 			}
-			INameserver serverTest = (INameserver)children.get(next);
+			INameserver serverTest = (INameserver)children.get(end);
 			//close read semaphore children
 
 			System.out.println("registerNameserver recursion: " + next);
-			serverTest.registerNameserver(next, n, null);
+			serverTest.registerNameserver(next, nameserver, null);
 		}
 
 	}
