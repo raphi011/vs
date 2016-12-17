@@ -206,7 +206,7 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 	public String lookup(String username) throws RemoteException {
 		System.out.println("Started lookup");
 		//insert read semaphore users
-		if(users.contains(username)==false){
+		if(users.containsKey(username)==false){
 			//close read semaphore users
 			throw new RemoteException();
 		}

@@ -23,7 +23,7 @@ public class AddressStore {
     }
 
     public String getPrivateAddress(String name) throws RemoteException {
-        String [] nameParts = name.split(".");
+        String [] nameParts = name.split("\\.");
         INameserverForChatserver currentNameServer = nameServer;
         String address = "";
 
