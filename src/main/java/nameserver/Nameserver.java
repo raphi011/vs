@@ -5,7 +5,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import nameserver.exceptions.AlreadyRegisteredException;
@@ -81,6 +80,11 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 		} catch (Exception e) {
 			System.err.println("Client exception: " + e.toString());
 			e.printStackTrace();
+			try {
+				exit();
+			} catch(IOException e1) {
+
+			}
 			return;
 		}
 
@@ -99,13 +103,13 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 				}
 
 				if (s.equals("!exit")) {
-					userResponseStream.println("NotimplementedException");
-					return;
+					exit();
+					break;
 				}
 
 			}
 		} catch (IOException e) {
-			return;
+			;
 		}
 	}
 
@@ -122,7 +126,6 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 
 	@Override
 	public String addresses() throws IOException {
-		// TODO Auto-generated method stub
 		String returnString = "";
 		//Read Semaphore for users
 		for(String key : users.keySet()) {
@@ -134,7 +137,14 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 
 	@Override
 	public String exit() throws IOException {
-		// TODO Auto-generated method stub
+		UnicastRemoteObject.unexportObject(this, true);
+		if (isRootServer) {
+			try {
+				registry.unbind(rootNameServerID);
+			} catch (Exception e) {
+			}
+			UnicastRemoteObject.unexportObject(registry, true);
+		}
 		return null;
 	}
 
@@ -185,7 +195,7 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 		//insert read semaphore children
 		if(children.containsKey(zone)== false){
 			//close read semaphore children
-			throw new RemoteException();
+			throw new RemoteException("Domain " + zone + "not found!");
 		}
 		INameserverForChatserver ret = (INameserverForChatserver)children.get(zone);
 		//close read semaphore children
