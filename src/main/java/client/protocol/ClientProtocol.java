@@ -3,15 +3,25 @@ package client.protocol;
 import channel.IChannel;
 import channel.TcpChannel;
 import connection.Protocol;
+import util.Config;
+import util.Keys;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.bouncycastle.util.encoders.Base64;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.util.AbstractMap;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import javax.crypto.Mac;
 
 public class ClientProtocol extends Protocol {
     private Log log = LogFactory.getLog(ClientProtocol.class);
@@ -19,6 +29,7 @@ public class ClientProtocol extends Protocol {
     private AbstractMap<String, Queue<String>> messages;
     private String lastMessage;
     private String username;
+    private Config config=new Config("client");
 
     public ClientProtocol(IChannel channel) {
         super("\\|", channel);
@@ -29,8 +40,35 @@ public class ClientProtocol extends Protocol {
         if (!messages.containsKey(username)) {
             messages.put(username, new ConcurrentLinkedQueue<String>());
         }
-
-        messages.get(username).add(message);
+        messages.get(username).add(hmac(message)+" "+message);
+    }
+    
+    private String hmac(String message){
+    	Key secretKey=null;
+    	try {
+    		secretKey = Keys.readSecretKey(new File(config.getString("hmac.key")));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	Mac hMac=null;
+    	try {
+			hMac = Mac.getInstance("HmacSHA256");
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	try {
+			hMac.init(secretKey);
+		} catch (InvalidKeyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	hMac.update(message.getBytes());
+    	byte[] hash = hMac.doFinal();
+    	byte[] base64Message = Base64.encode(hash);
+    	return new String(base64Message);
+    	//return "wrong_hash";
     }
 
     protected String selectCommand(String command, String params) {
