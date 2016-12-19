@@ -165,24 +165,29 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 		int index = username.lastIndexOf('.');
 		if(index==-1){
 			//insert write semaphore users
-			if (users.containsKey(username)){
-				//close write semaphore users
-				throw new AlreadyRegisteredException("user already registered");
+			synchronized (this) {
+				if (users.containsKey(username)) {
+					//close write semaphore users
+					throw new AlreadyRegisteredException("user already registered");
+				}
+				users.put(username, address);
 			}
-			users.put(username,address);
 			System.out.println("RegisterUser success: " + username);
 			//close write semaphore
 		}else{
 			String end=username.substring(index+1);
 			String next=username.substring(0,index);
+			INameserver userTest = null;
 
 			//insert read semaphore children
-			if(children.containsKey(end)==false){
-				//close read semaphore children
-				throw new InvalidDomainException("No domain with name "+end+" found");
-			}
+			synchronized (this) {
+				if (children.containsKey(end) == false) {
+					//close read semaphore children
+					throw new InvalidDomainException("No domain with name " + end + " found");
+				}
 
-			INameserver userTest = (INameserver)children.get(end);
+				userTest = (INameserver) children.get(end);
+			}
 			//close read semaphore children
 			System.out.println("RegisterUser recursion: " + next);
 			userTest.registerUser(next, address);
@@ -192,12 +197,15 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 	@java.lang.Override
 	public INameserverForChatserver getNameserver(String zone) throws RemoteException {
 		System.out.println("getNameserver called");
+		INameserverForChatserver ret = null;
 		//insert read semaphore children
-		if(children.containsKey(zone)== false){
-			//close read semaphore children
-			throw new RemoteException("Domain " + zone + "not found!");
+		synchronized (this) {
+			if (children.containsKey(zone) == false) {
+				//close read semaphore children
+				throw new RemoteException("Domain " + zone + "not found!");
+			}
+			ret = (INameserverForChatserver) children.get(zone);
 		}
-		INameserverForChatserver ret = (INameserverForChatserver)children.get(zone);
 		//close read semaphore children
 		return ret;
 	}
@@ -225,23 +233,28 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 		int index = domain.lastIndexOf('.');
 		if(index==-1){
 			//insert write semaphore domain
-			if (children.containsKey(domain)){
-				//close write semaphore domain
-				throw new AlreadyRegisteredException("domain already registered");
+			synchronized (this) {
+				if (children.containsKey(domain)) {
+					//close write semaphore children
+					throw new AlreadyRegisteredException("domain already registered");
+				}
+
+				children.put(domain, nameserver);
 			}
-			children.put(domain, nameserver);
 			System.out.println("Successfully inserted " + domain);
 			//close write semaphore domain /children
 		}else{
 			String end=domain.substring(index+1);
 			String next=domain.substring(0,index);
-
+			INameserver serverTest = null;
 			//insert read semaphore children
-			if(children.containsKey(end)==false){
-				//close read semaphore children
-				throw new InvalidDomainException("No domain with name "+end+" found");
+			synchronized (this) {
+				if (children.containsKey(end) == false) {
+					//close read semaphore children
+					throw new InvalidDomainException("No domain with name " + end + " found");
+				}
+				serverTest = (INameserver) children.get(end);
 			}
-			INameserver serverTest = (INameserver)children.get(end);
 			//close read semaphore children
 
 			System.out.println("registerNameserver recursion: " + next);
