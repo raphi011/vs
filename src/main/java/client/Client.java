@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.*;
 
+import channel.SecureTcpChannel;
 import channel.TcpChannel;
 import channel.TcpListener;
 import channel.UdpChannel;
@@ -27,7 +28,7 @@ public class Client implements IClientCli, Runnable {
 	private Config config;
 	private InputStream userRequestStream;
 	private PrintStream userResponseStream;
-    private TcpChannel tcpChannel;
+    private SecureTcpChannel tcpChannel;
 	private Thread tcpListenerThread;
 	private ClientProtocol clientProtocol;
     private ConnectionAgent udpListener;
@@ -62,7 +63,7 @@ public class Client implements IClientCli, Runnable {
 
 		try {
 			// tcp server
-			tcpChannel = new TcpChannel(new Socket(host, tcpPort));
+			tcpChannel = new SecureTcpChannel(new Socket(host, tcpPort));
 			clientProtocol = new ClientProtocol(tcpChannel);
 			Connection tcpConnection = new Connection(tcpChannel, clientProtocol);
 			tcpConnection.overrideOut(userResponseStream);

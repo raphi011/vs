@@ -1,6 +1,10 @@
 package connection;
 
 import channel.IChannel;
+import channel.SecureTcpChannel;
+import chatserver.protocol.ChatProtocol;
+import util.MyCipher;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -37,8 +41,12 @@ public class Connection implements Runnable {
                     if (input == null) {
                         break;
                     }
+                    if(protocol.getClass().equals(ChatProtocol.class))
+                    	input=MyCipher.decryptRSAtest(input);
                     String output = protocol.nextCommand(input);
                     if (output != null && !output.equals("")) {
+                        if(protocol.getClass().equals(ChatProtocol.class))
+                        	output=MyCipher.encryptRSAtest(output);
                         if (overrideOut != null) {
                            overrideOut.println(output);
                         } else {
