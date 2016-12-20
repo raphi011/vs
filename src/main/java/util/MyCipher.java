@@ -30,9 +30,9 @@ public class MyCipher {
 		return decryptAES("12345678123456781234567812345678".getBytes(), "1234567812345678".getBytes(), input);
 	}
 	public static String decryptAES(byte[] key, byte[] vector, String input){
-		System.out.println("to decrypt: "+input);
 		if(input==null)
 			return null;
+		System.out.println("to decrypt: "+input);
 		
 		com.sun.org.apache.xml.internal.security.Init.init();
 		Cipher cipher=null;
@@ -73,9 +73,9 @@ public class MyCipher {
 		return encryptAES("12345678123456781234567812345678".getBytes(), "1234567812345678".getBytes(), input);
 	}
 	public static String encryptAES(byte[] key, byte[] vector, String input){
-		System.out.println("to decrypt: "+input);
 		if(input==null)
 			return null;
+		System.out.println("to decrypt: "+input);
 		
 		com.sun.org.apache.xml.internal.security.Init.init();
 		Cipher cipher=null;
@@ -113,9 +113,9 @@ public class MyCipher {
 		return decryptRSA("keys/chatserver/chatserver.pem","12345",input);
 	}
 	public static String decryptRSA(String privateKeyPath, String password, String input){
-		System.out.println("attemping to decrypt: "+input.length());
 		if(input==null)
 			return null;
+		System.out.println("attemping to decrypt: "+input.length());
 		
 		com.sun.org.apache.xml.internal.security.Init.init();
 		StaticPasswordReader.setPassword(privateKeyPath, password);
@@ -189,5 +189,12 @@ public class MyCipher {
 		}
 		System.out.println("encrypt: "+ret.length());
 		return ret;
+	}
+	
+	public static byte[] getRandomBytes(int size){
+		SecureRandom secureRandom = new SecureRandom();
+		final byte[] number = new byte[size];
+		secureRandom.nextBytes(number);
+		return number;
 	}
 }

@@ -77,11 +77,17 @@ public class ClientProtocol extends Protocol {
             case "$send": return send(params);
             case "$login": return login(params);
             case "$logout": return logout(params);
+            case "$authenticate": return authenticate(params);
             default: return params;
         }
     }
 
-    public String getUsername() {
+    private String authenticate(String params) {
+		// TODO Auto-generated method stub
+		return params;
+	}
+
+	public String getUsername() {
         return username;
     }
 

@@ -19,7 +19,11 @@ import connection.Connection;
 import connection.ReadProtocolFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.sun.org.apache.xml.internal.security.utils.Base64;
+
 import util.Config;
+import util.MyCipher;
 
 public class Client implements IClientCli, Runnable {
 	private Log log = LogFactory.getLog(Client.class);
@@ -241,8 +245,11 @@ public class Client implements IClientCli, Runnable {
 	// implement them for the first submission. ---
 
 	@Override
+	@Command
 	public String authenticate(String username) throws IOException {
-		// TODO Auto-generated method stub
+		String challenge=Base64.encode(MyCipher.getRandomBytes(32));
+		System.out.println("challenge: "+challenge);
+		tcpChannel.writeLine(String.format("authenticate %s %s", username, challenge));
 		return null;
 	}
 }
