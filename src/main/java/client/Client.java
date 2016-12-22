@@ -7,8 +7,10 @@ import java.io.PrintStream;
 import java.net.*;
 
 import channel.*;
+import chatserver.UserStore;
 import client.protocol.ClientProtocol;
 import client.protocol.PrivateChatProtocolFactory;
+import com.sun.xml.internal.fastinfoset.util.CharArray;
 import connection.ConnectionAgent;
 import cli.Command;
 import cli.Shell;
@@ -20,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 import util.Config;
+import util.Keys;
 import util.RsaProvider;
 import util.SecurityUtils;
 
@@ -64,13 +67,13 @@ public class Client implements IClientCli, Runnable {
 		int udpPort = config.getInt("chatserver.udp.port");
 
 		try {
-			// tcp server
-			tcpChannel = new TcpChannel(new Socket(host, tcpPort));
-			clientProtocol = new ClientProtocol(tcpChannel);
-			Connection tcpConnection = new Connection(tcpChannel, clientProtocol);
-			tcpConnection.overrideOut(userResponseStream);
-			tcpListenerThread = new Thread(tcpConnection, "clientprotocol");
-			tcpListenerThread.start();
+			// tcp server - moved to !authenticate
+			//tcpChannel = new TcpChannel(new Socket(host, tcpPort));
+			//clientProtocol = new ClientProtocol(tcpChannel);
+			//Connection tcpConnection = new Connection(tcpChannel, clientProtocol);
+			//tcpConnection.overrideOut(userResponseStream);
+			//tcpListenerThread = new Thread(tcpConnection, "clientprotocol");
+			//tcpListenerThread.start();
 
 			// udp
 			udpSocket = new DatagramSocket();
@@ -99,6 +102,9 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	@Command
 	public String login(String username, String password) throws IOException {
+		if (tcpChannel == null) {
+			return "Authenticate before executing other commands.";
+		}
 		if (username == null || username.isEmpty()) {
 			return "Please enter a username";
 		}
@@ -114,6 +120,9 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	@Command
 	public String logout() throws IOException {
+		if (tcpChannel == null) {
+			return "Authenticate before executing other commands.";
+		}
         tcpChannel.writeLine("logout");
 
 		return null;
@@ -122,6 +131,9 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	@Command
 	public String send(String message) throws IOException {
+		if (tcpChannel == null) {
+			return "Authenticate before executing other commands.";
+		}
 		if (message == null || message.isEmpty()) {
 			return "Please enter a message.";
 		}
@@ -142,6 +154,9 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	@Command
 	public String msg(String username, String message) throws IOException {
+		if (tcpChannel == null) {
+			return "Authenticate before executing other commands.";
+		}
 		clientProtocol.addPrivateMessage(username, message);
         tcpChannel.writeLine(String.format("$lookup %s", username));
 
@@ -151,6 +166,9 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	@Command
 	public String lookup(String username) throws IOException {
+		if (tcpChannel == null) {
+			return "Authenticate before executing other commands.";
+		}
         if (username == null || username.isEmpty()) {
 			return "Please enter a username.";
 		}
@@ -163,6 +181,9 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	@Command
 	public String register(String privateAddress) throws IOException {
+		if (tcpChannel == null) {
+			return "Authenticate before executing other commands.";
+		}
 		if (tcpListener != null) {
 			return "Already registered.";
 		}
@@ -201,6 +222,9 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	@Command
 	public String lastMsg() throws IOException {
+		if (clientProtocol == null) {
+			return "Authenticate before executing other commands.";
+		}
         String message = clientProtocol.getLastMessage();
 
 		if (message == null || message.isEmpty()) {
@@ -236,7 +260,7 @@ public class Client implements IClientCli, Runnable {
 	public static void main(String[] args) {
 		Client client = new Client(args[0], new Config("client"), System.in,
 				System.out);
-		client.run();
+		client.run();		System.out.println("273");
 	}
 
 	// --- Commands needed for Lab 2. Please note that you do not have to
@@ -245,6 +269,15 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	@Command
 	public String authenticate(String username) throws IOException {
+
+		String host = config.getString("chatserver.host");
+		int tcpPort = config.getInt("chatserver.tcp.port");
+		tcpChannel = new TcpChannel(new Socket(host, tcpPort));
+		tcpChannel.open();
+		//clientProtocol = new ClientProtocol(tcpChannel);
+		//Connection tcpConnection = new Connection(tcpChannel, clientProtocol);
+		//tcpConnection.overrideOut(userResponseStream);
+
 		if (username == null || username.isEmpty()) {
 			return "Please enter a username";
 		}
@@ -263,8 +296,9 @@ public class Client implements IClientCli, Runnable {
 
 		RsaProvider rsaProvider = new RsaProvider();
 		rsaProvider.setPublicKey(publicKeyfile);
-		rsaProvider.setPrivateKey(privateKeyfile, "23456");
-
+		Keys.PasswordReader pwdReader  = new Keys.PasswordReader(username);
+		char pwd[] = pwdReader.getPassword();
+		rsaProvider.setPrivateKey(privateKeyfile, new String(pwd));
 		String challenge=Base64.encode(SecurityUtils.getRandomBytes(32));
 		String request = String.format("!authenticate %s %s", username, challenge);
 		tcpChannel.writeLine(rsaProvider.encrypt(request));
@@ -273,11 +307,16 @@ public class Client implements IClientCli, Runnable {
 
 		String[] params = response.split(" ");
 
-		if (params[1] != challenge) {
-			return "wrong challenge";
+		if (!(challenge.equals(params[1]))) {
+			return "Wrong challenge";
 		}
 
-		System.out.println("challenge: "+challenge);
+		System.out.println("Challenge: "+challenge);
+
+		clientProtocol = new ClientProtocol(tcpChannel);
+		Connection tcpConnection = new Connection(tcpChannel, clientProtocol);
+		tcpConnection.overrideOut(userResponseStream);
+
 		return null;
 	}
 }
