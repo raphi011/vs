@@ -1,15 +1,12 @@
 package client;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.*;
 
-import channel.SecureTcpChannel;
-import channel.TcpChannel;
-import channel.TcpListener;
-import channel.UdpChannel;
-import channel.UdpListener;
+import channel.*;
 import client.protocol.ClientProtocol;
 import client.protocol.PrivateChatProtocolFactory;
 import connection.ConnectionAgent;
@@ -23,7 +20,8 @@ import org.apache.commons.logging.LogFactory;
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 import util.Config;
-import util.MyCipher;
+import util.RsaProvider;
+import util.SecurityUtils;
 
 public class Client implements IClientCli, Runnable {
 	private Log log = LogFactory.getLog(Client.class);
@@ -32,7 +30,7 @@ public class Client implements IClientCli, Runnable {
 	private Config config;
 	private InputStream userRequestStream;
 	private PrintStream userResponseStream;
-    private SecureTcpChannel tcpChannel;
+    private IChannel tcpChannel;
 	private Thread tcpListenerThread;
 	private ClientProtocol clientProtocol;
     private ConnectionAgent udpListener;
@@ -67,7 +65,7 @@ public class Client implements IClientCli, Runnable {
 
 		try {
 			// tcp server
-			tcpChannel = new SecureTcpChannel(new Socket(host, tcpPort));
+			tcpChannel = new TcpChannel(new Socket(host, tcpPort));
 			clientProtocol = new ClientProtocol(tcpChannel);
 			Connection tcpConnection = new Connection(tcpChannel, clientProtocol);
 			tcpConnection.overrideOut(userResponseStream);
@@ -247,9 +245,39 @@ public class Client implements IClientCli, Runnable {
 	@Override
 	@Command
 	public String authenticate(String username) throws IOException {
-		String challenge=Base64.encode(MyCipher.getRandomBytes(32));
+		if (username == null || username.isEmpty()) {
+			return "Please enter a username";
+		}
+
+		File privateKeyfile = new File(config.getString("keys.dir"), username + ".pem");
+
+		if (!privateKeyfile.exists()) {
+			return "This user doesn't exist";
+		}
+
+		File publicKeyfile = new File(config.getString("chatserver.key"));
+
+		if (!publicKeyfile.exists()) {
+			return "Missing server keyfile.";
+		}
+
+		RsaProvider rsaProvider = new RsaProvider();
+		rsaProvider.setPublicKey(publicKeyfile);
+		rsaProvider.setPrivateKey(privateKeyfile, "23456");
+
+		String challenge=Base64.encode(SecurityUtils.getRandomBytes(32));
+		String request = String.format("!authenticate %s %s", username, challenge);
+		tcpChannel.writeLine(rsaProvider.encrypt(request));
+
+		String response = rsaProvider.decrypt(tcpChannel.readLine());
+
+		String[] params = response.split(" ");
+
+		if (params[1] != challenge) {
+			return "wrong challenge";
+		}
+
 		System.out.println("challenge: "+challenge);
-		tcpChannel.writeLine(String.format("authenticate %s %s", username, challenge));
 		return null;
 	}
 }

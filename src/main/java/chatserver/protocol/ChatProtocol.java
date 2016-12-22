@@ -7,12 +7,9 @@ import chatserver.UserStore;
 import connection.Protocol;
 import nameserver.exceptions.AlreadyRegisteredException;
 import nameserver.exceptions.InvalidDomainException;
-import util.MyCipher;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
@@ -44,25 +41,9 @@ public class ChatProtocol extends Protocol {
             case "lookup": return lookup(input);
             case "$lookup": return implicitLookup(input);
             case "register": return register(input);
-            case "authenticate": return authenticate(input);
             default: return "Unknown command";
         }
     }
-
-    private String authenticate(String input) {
-    	String[] credentials = input.split(argsDelimiter);
-
-        if (credentials.length != 2) {
-            return "$authenticate|1|Wrong command format.";
-        }
-
-        String username = credentials[0];
-        String challenge = credentials[1];
-        String mychallenge = Base64.encode(MyCipher.getRandomBytes(32));
-        String vector = Base64.encode(MyCipher.getRandomBytes(16));
-        
-        return String.format("$authenticate|1|%s|%s|%s", challenge,mychallenge,vector);
-	}
 
 	@Override
     public void onClosed() {

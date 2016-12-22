@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class TcpChannel implements IChannel {
 
@@ -14,6 +15,10 @@ public class TcpChannel implements IChannel {
 
     public TcpChannel(Socket socket) {
         this.socket = socket;
+    }
+
+    public void setTimeout(int timeout) throws SocketException {
+        socket.setSoTimeout(timeout);
     }
 
     @Override

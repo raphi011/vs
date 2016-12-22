@@ -10,7 +10,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-import channel.TcpListener;
+import channel.SecureChannelListener;
 import channel.UdpListener;
 import chatserver.protocol.ChatProtocolFactory;
 import chatserver.protocol.InfoProtocolFactory;
@@ -63,6 +63,8 @@ public class Chatserver implements IChatserverCli, Runnable {
 		String rootId = config.getString("root_id");
 		String registryHost = config.getString("registry.host");
 		int registryPort = config.getInt("registry.port");
+		String publicKeyDir = config.getString("keys.dir");
+		String privateKeyPath = config.getString("key");
 
 		try {
 			Registry registry = LocateRegistry.getRegistry(registryHost, registryPort);
@@ -77,7 +79,7 @@ public class Chatserver implements IChatserverCli, Runnable {
 
         try {
             tcpListener = new ConnectionAgent("tcpListener",
-									   new TcpListener(new ServerSocket(tcpPort)),
+									   new SecureChannelListener(new ServerSocket(tcpPort),publicKeyDir, privateKeyPath),
 									   new ChatProtocolFactory(userStore, addressStore));
 			udpListener = new ConnectionAgent("udpListener",
 									   new UdpListener(new DatagramSocket(udpPort)),
