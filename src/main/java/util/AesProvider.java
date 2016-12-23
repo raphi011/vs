@@ -15,15 +15,18 @@ import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 public class AesProvider {
 
-    private Cipher cipher;
+    private Cipher decryptCipher;
+    private Cipher encryptCipher;
 
     public AesProvider(byte[] key, byte[] vector) {
         com.sun.org.apache.xml.internal.security.Init.init();
 
         try {
-            cipher = Cipher.getInstance("AES/CTR/NoPadding");
+            decryptCipher = Cipher.getInstance("AES/CTR/NoPadding");
+            encryptCipher = Cipher.getInstance("AES/CTR/NoPadding");
             SecretKeySpec secret = new SecretKeySpec(key, "AES");
-            cipher.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(vector));
+            decryptCipher.init(Cipher.DECRYPT_MODE, secret, new IvParameterSpec(vector));
+            encryptCipher.init(Cipher.ENCRYPT_MODE, secret, new IvParameterSpec(vector));
         }catch (InvalidKeyException e) {
             e.printStackTrace();
         } catch (InvalidAlgorithmParameterException e) {
@@ -43,7 +46,7 @@ public class AesProvider {
         String ret=null;
 
         try {
-            ret = new String(cipher.doFinal(Base64.decode(input.getBytes())));
+            ret = new String(decryptCipher.doFinal(Base64.decode(input.getBytes())));
         } catch (IllegalBlockSizeException e) {
             e.printStackTrace();
         } catch (BadPaddingException e) {
@@ -64,7 +67,7 @@ public class AesProvider {
         String ret = null;
 
         try {
-            ret = Base64.encode(cipher.doFinal(input.getBytes()));
+            ret = Base64.encode(encryptCipher.doFinal(input.getBytes()));
         } catch (IllegalBlockSizeException e) {
             e.printStackTrace();
         } catch (BadPaddingException e) {
