@@ -10,6 +10,7 @@ import channel.*;
 import chatserver.UserStore;
 import client.protocol.ClientProtocol;
 import client.protocol.PrivateChatProtocolFactory;
+import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
 import com.sun.xml.internal.fastinfoset.util.CharArray;
 import connection.ConnectionAgent;
 import cli.Command;
@@ -21,10 +22,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 
-import util.Config;
-import util.Keys;
-import util.RsaProvider;
-import util.SecurityUtils;
+import util.*;
 
 public class Client implements IClientCli, Runnable {
 	private Log log = LogFactory.getLog(Client.class);
@@ -34,6 +32,7 @@ public class Client implements IClientCli, Runnable {
 	private InputStream userRequestStream;
 	private PrintStream userResponseStream;
     private IChannel tcpChannel;
+	private IChannel secureChannel;
 	private Thread tcpListenerThread;
 	private ClientProtocol clientProtocol;
     private ConnectionAgent udpListener;
@@ -138,7 +137,8 @@ public class Client implements IClientCli, Runnable {
 			return "Please enter a message.";
 		}
 
-		tcpChannel.writeLine(String.format("send %s", message));
+		//tcpChannel.writeLine(String.format("send %s", message));
+		secureChannel.writeLine(String.format("send %s", message));
 
 		return null;
 	}
@@ -274,9 +274,6 @@ public class Client implements IClientCli, Runnable {
 		int tcpPort = config.getInt("chatserver.tcp.port");
 		tcpChannel = new TcpChannel(new Socket(host, tcpPort));
 		tcpChannel.open();
-		//clientProtocol = new ClientProtocol(tcpChannel);
-		//Connection tcpConnection = new Connection(tcpChannel, clientProtocol);
-		//tcpConnection.overrideOut(userResponseStream);
 
 		if (username == null || username.isEmpty()) {
 			return "Please enter a username";
@@ -311,10 +308,21 @@ public class Client implements IClientCli, Runnable {
 			return "Wrong challenge";
 		}
 
-		System.out.println("Challenge: "+challenge);
+		try {
+			System.out.println("Challenge: " + challenge + " | Vector: " + params[4] + " | " + Base64.decode(params[4]).length);
+		} catch (Base64DecodingException e1) {}
 
-		clientProtocol = new ClientProtocol(tcpChannel);
-		Connection tcpConnection = new Connection(tcpChannel, clientProtocol);
+		AesProvider aesProvider = null;
+		try {
+			aesProvider = new AesProvider(Base64.decode(params[3]), Base64.decode(params[4]));
+		} catch (Base64DecodingException e1) {}
+
+		secureChannel = new SecureChannel(tcpChannel, aesProvider);
+
+		secureChannel.writeLine(params[2]);
+
+		clientProtocol = new ClientProtocol(secureChannel);
+		Connection tcpConnection = new Connection(secureChannel, clientProtocol);
 		tcpConnection.overrideOut(userResponseStream);
 
 		return null;
