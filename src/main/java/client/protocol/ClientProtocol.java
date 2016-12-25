@@ -36,6 +36,10 @@ public class ClientProtocol extends Protocol {
         messages = new ConcurrentHashMap<>();
     }
 
+    public void setUserName(String userName) {
+        this.username = userName;
+    }
+
     public void addPrivateMessage(String username, String message) {
         if (!messages.containsKey(username)) {
             messages.put(username, new ConcurrentLinkedQueue<String>());

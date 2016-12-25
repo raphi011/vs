@@ -62,7 +62,7 @@ public class AesProvider {
             return null;
         }
 
-        System.out.println("to decrypt: "+input);
+        System.out.println("to encrypt: "+input);
 
         String ret = null;
 
@@ -73,7 +73,7 @@ public class AesProvider {
         } catch (BadPaddingException e) {
             e.printStackTrace();
         }
-        System.out.println("from decrypt: "+ret);
+        System.out.println("from encrypt: "+ret);
         return ret;
     }
 }

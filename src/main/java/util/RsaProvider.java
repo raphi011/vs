@@ -44,6 +44,7 @@ public class RsaProvider {
 
 	public void setPrivateKey(File keyFile, String password) {
 		Keys.StaticPasswordReader.setPassword(keyFile.getPath(), password);
+		System.out.println("Password: " + password);
 
 		try {
 			PrivateKey privateKey = Keys.readPrivatePEM(keyFile);

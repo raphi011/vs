@@ -2,6 +2,8 @@ package connection;
 
 import channel.IChannel;
 import channel.IListener;
+import channel.SecureChannelListener;
+import chatserver.protocol.ChatProtocolFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -39,7 +41,15 @@ public class ConnectionAgent extends Thread {
         while (true) {
             try {
                 IChannel channel = listener.accept(500);
-                Connection connection = new Connection(channel, protocolFactory.newProtocol(channel));
+                String userName = "";
+                Connection connection;
+                if(listener instanceof  SecureChannelListener) {
+                    userName = ((SecureChannelListener) listener).getUser();
+                    connection = new Connection(channel, ((ChatProtocolFactory)protocolFactory).newProtocol(channel, userName));
+                } else {
+                    connection = new Connection(channel, protocolFactory.newProtocol(channel));
+                }
+
                 log.info(String.format("%s connected", name));
                 if (this.overrideOut != null){
                     connection.overrideOut(this.overrideOut);

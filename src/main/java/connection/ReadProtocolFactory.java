@@ -8,4 +8,5 @@ public class ReadProtocolFactory implements IProtocolFactory {
     public Protocol newProtocol(IChannel channel) {
         return new ReadProtocol(channel);
     }
-}
+
+    }

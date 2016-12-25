@@ -17,6 +17,11 @@ public class ChatProtocolFactory implements IProtocolFactory {
     }
 
     public Protocol newProtocol(IChannel channel) {
-        return new ChatProtocol(userStore, addressStore, channel);
+        return new ChatProtocol(userStore, addressStore, channel, "");
     }
+
+    public Protocol newProtocol(IChannel channel, String userName) {
+        return new ChatProtocol(userStore, addressStore, channel, userName);
+    }
+
 }

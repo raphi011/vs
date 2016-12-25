@@ -107,9 +107,9 @@ public class Client implements IClientCli, Runnable {
 		if (username == null || username.isEmpty()) {
 			return "Please enter a username";
 		}
-		if (password == null || password.isEmpty()) {
-			return "Please enter a password";
-		}
+		//if (password == null || password.isEmpty()) {
+		//	return "Please enter a password";
+		//}
 
 		tcpChannel.writeLine(String.format("login %s %s", username, password));
 
@@ -138,7 +138,7 @@ public class Client implements IClientCli, Runnable {
 		}
 
 		//tcpChannel.writeLine(String.format("send %s", message));
-		secureChannel.writeLine(String.format("send %s", message));
+		tcpChannel.writeLine(String.format("send %s", message));
 
 		return null;
 	}
@@ -293,6 +293,7 @@ public class Client implements IClientCli, Runnable {
 
 		RsaProvider rsaProvider = new RsaProvider();
 		rsaProvider.setPublicKey(publicKeyfile);
+		/* Pwd is discarded currently. */
 		Keys.PasswordReader pwdReader  = new Keys.PasswordReader(username);
 		char pwd[] = pwdReader.getPassword();
 		rsaProvider.setPrivateKey(privateKeyfile, new String(pwd));
@@ -322,8 +323,12 @@ public class Client implements IClientCli, Runnable {
 		secureChannel.writeLine(params[2]);
 
 		clientProtocol = new ClientProtocol(secureChannel);
+		clientProtocol.setUserName(username);
 		Connection tcpConnection = new Connection(secureChannel, clientProtocol);
 		tcpConnection.overrideOut(userResponseStream);
+		tcpChannel = secureChannel;
+		tcpListenerThread = new Thread(tcpConnection, "clientprotocol");
+		tcpListenerThread.start();
 
 		return null;
 	}

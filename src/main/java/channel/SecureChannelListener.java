@@ -8,16 +8,20 @@ import util.SecurityUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.Observable;
 
 public class SecureChannelListener extends TcpListener {
 
     private final String publicKeyDir;
     private final String privateKeyPath;
 
+    private String username;
+
     public SecureChannelListener(
             ServerSocket serverSocket,
             String publicKeyDir,
-            String privateKeyPath) {
+            String privateKeyPath
+            ) {
         super(serverSocket);
         this.publicKeyDir = publicKeyDir;
         this.privateKeyPath = privateKeyPath;
@@ -50,7 +54,9 @@ public class SecureChannelListener extends TcpListener {
 
         return file;
     }
-
+    public String getUser() {
+        return username;
+    }
     private IChannel handshake(IChannel channel) throws IOException {
         RsaProvider rsaProvider = new RsaProvider();
         rsaProvider.setPrivateKey(new File(privateKeyPath), "12345");
@@ -58,7 +64,7 @@ public class SecureChannelListener extends TcpListener {
         //  1st message
         String request = rsaProvider.decrypt(channel.readLine());
         String[] params = request.split(" ");
-        String username = params[1];
+        username = params[1];
         String clientChallenge = params[2];
         String serverChallenge = Base64.encode(SecurityUtils.getRandomBytes(32));
         byte[] secretKey = SecurityUtils.getRandomBytes(32);
@@ -80,8 +86,8 @@ public class SecureChannelListener extends TcpListener {
                 Base64.encode(secretKey),
                 Base64.encode(vector));
 
-        String encryptedReponse = rsaProvider.encrypt(response);
-        channel.writeLine(encryptedReponse);
+        String encryptedResponse = rsaProvider.encrypt(response);
+        channel.writeLine(encryptedResponse);
 
         // 3d message
         AesProvider aesProvider = new AesProvider(secretKey, vector);

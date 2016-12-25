@@ -44,6 +44,10 @@ public class User implements Comparable<User> {
         return false;
     }
 
+    public void setOnline() {
+        isOnline = true;
+    }
+
     @Override
     public int compareTo(User o) {
         if (o == null) {

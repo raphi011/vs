@@ -14,17 +14,23 @@ import org.apache.commons.logging.LogFactory;
 import java.io.IOException;
 import java.rmi.RemoteException;
 
+
 public class ChatProtocol extends Protocol {
     private final Log log = LogFactory.getLog(ChatProtocol.class);
     private final AddressStore addressStore;
 
     private User loggedInUser;
     private final UserStore userStore;
+    private String userName;
 
-    public ChatProtocol(UserStore userStore, AddressStore addressStore, IChannel channel) {
+    public ChatProtocol(UserStore userStore, AddressStore addressStore, IChannel channel, String userName) {
         super(" ", channel);
         this.addressStore = addressStore;
         this.userStore = userStore;
+        this.userName = userName;
+
+        loggedInUser = (!this.userName.isEmpty()) ? this.userStore.getUser(this.userName) : null;
+        if (loggedInUser != null)  { loggedInUser.setOnline(); loggedInUser.setProtocol(this);}
     }
 
     @Override
@@ -192,7 +198,7 @@ public class ChatProtocol extends Protocol {
         }
 
         loggedInUser = user;
-        
+
         return String.format("$login|0|%s|Successfully logged in.", username);
     }
 

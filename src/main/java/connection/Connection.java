@@ -46,7 +46,7 @@ public class Connection implements Runnable {
                             channel.writeLine(output);
                         }
                     }
-                } catch (SocketTimeoutException ex) { }
+                } catch (SocketTimeoutException ex) {}
             }
         } catch (SocketException e) {
             if (!e.getMessage().contains("closed")) {
