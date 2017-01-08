@@ -260,7 +260,7 @@ public class Client implements IClientCli, Runnable {
 	public static void main(String[] args) {
 		Client client = new Client(args[0], new Config("client"), System.in,
 				System.out);
-		client.run();		System.out.println("273");
+		client.run();
 	}
 
 	// --- Commands needed for Lab 2. Please note that you do not have to
@@ -309,9 +309,9 @@ public class Client implements IClientCli, Runnable {
 			return "Wrong challenge";
 		}
 
-		try {
-			System.out.println("Challenge: " + challenge + " | Vector: " + params[4] + " | " + Base64.decode(params[4]).length);
-		} catch (Base64DecodingException e1) {}
+		//try {
+		//	System.out.println("Challenge: " + challenge + " | Vector: " + params[4] + " | " + Base64.decode(params[4]).length);
+		//} catch (Base64DecodingException e1) {}
 
 		AesProvider aesProvider = null;
 		try {

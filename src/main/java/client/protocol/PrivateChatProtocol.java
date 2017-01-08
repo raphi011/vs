@@ -41,8 +41,9 @@ public class PrivateChatProtocol extends Protocol {
         String message=params[1].substring(index+1);
         byte[] genhmac=hmac(message);
         out.println(String.format("%s %s: %s", hmac, params[0], message));
-        if(MessageDigest.isEqual(genhmac, Base64.decode(hmac.getBytes())))
-        	return "!ack";
+        if(MessageDigest.isEqual(genhmac, Base64.decode(hmac.getBytes()))) {
+            return "!ack";
+        }
         else
         	return new String(Base64.encode(genhmac))+" !tampered "+message;
     }

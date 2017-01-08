@@ -76,7 +76,7 @@ public class SecureChannelListener extends TcpListener {
             channel.close();
             throw new IOException("User doesn't exist");
         }
-        System.out.println("clientChallenge on Server: " + clientChallenge + " | Vector: " + vector);
+        //System.out.println("clientChallenge on Server: " + clientChallenge + " | Vector: " + vector);
         // 2nd message
         rsaProvider.setPublicKey(userPublicKey);
         String response = String.format(

@@ -44,7 +44,7 @@ public class RsaProvider {
 
 	public void setPrivateKey(File keyFile, String password) {
 		Keys.StaticPasswordReader.setPassword(keyFile.getPath(), password);
-		System.out.println("Password: " + password);
+		//System.out.println("Password: " + password);
 
 		try {
 			PrivateKey privateKey = Keys.readPrivatePEM(keyFile);
@@ -67,7 +67,7 @@ public class RsaProvider {
 			return null;
 		}
 
-		System.out.println("attemping to decrypt: "+input.length());
+		//System.out.println("attemping to decrypt: "+input.length());
 
 		String ret=null;
 		try {
@@ -105,7 +105,7 @@ public class RsaProvider {
 			e.printStackTrace();
 		}
 
-		System.out.println("encrypt: "+ret.length());
+		//System.out.println("encrypt: "+ret.length());
 
 		return ret;
 	}

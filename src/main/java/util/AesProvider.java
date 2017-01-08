@@ -41,7 +41,7 @@ public class AesProvider {
     public String decrypt(String input){
         if(input==null)
             return null;
-        System.out.println("to decrypt: "+input);
+        //System.out.println("to decrypt: "+input);
 
         String ret=null;
 
@@ -54,7 +54,7 @@ public class AesProvider {
         } catch (Base64DecodingException e) {
             e.printStackTrace();
         }
-        System.out.println("from decrypt: "+ret);
+        //System.out.println("from decrypt: "+ret);
         return ret;
     }
     public String encrypt(String input){
@@ -62,7 +62,7 @@ public class AesProvider {
             return null;
         }
 
-        System.out.println("to encrypt: "+input);
+        //System.out.println("to encrypt: "+input);
 
         String ret = null;
 
@@ -73,7 +73,7 @@ public class AesProvider {
         } catch (BadPaddingException e) {
             e.printStackTrace();
         }
-        System.out.println("from encrypt: "+ret);
+        //System.out.println("from encrypt: "+ret);
         return ret;
     }
 }

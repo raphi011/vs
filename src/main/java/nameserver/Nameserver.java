@@ -117,8 +117,9 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 	public String nameservers() throws IOException {
 		// Read Semaphore for children
 		String returnString = "";
+		int i = 1;
 		for(String key : children.keySet()) {
-			returnString += (key+"\n");
+			returnString += (i++ +". " + key+"\n");
 		}
 		//Close Semaphore children
 		return returnString;
@@ -128,8 +129,9 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 	public String addresses() throws IOException {
 		String returnString = "";
 		//Read Semaphore for users
+		int i = 1;
 		for(String key : users.keySet()) {
-			returnString += key + " " + users.get(key) + "\n";
+			returnString += i++ + ". " + key + " " + users.get(key) + "\n";
 		}
 		//Close Read Semaphore
 		return returnString;
@@ -172,7 +174,7 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 				}
 				users.put(username, address);
 			}
-			System.out.println("RegisterUser success: " + username);
+			//System.out.println("RegisterUser success: " + username);
 			//close write semaphore
 		}else{
 			String end=username.substring(index+1);
@@ -189,14 +191,14 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 				userTest = (INameserver) children.get(end);
 			}
 			//close read semaphore children
-			System.out.println("RegisterUser recursion: " + next);
+			//System.out.println("RegisterUser recursion: " + next);
 			userTest.registerUser(next, address);
 		}
 	}
 
 	@java.lang.Override
 	public INameserverForChatserver getNameserver(String zone) throws RemoteException {
-		System.out.println("getNameserver called");
+		//System.out.println("getNameserver called");
 		INameserverForChatserver ret = null;
 		//insert read semaphore children
 		synchronized (this) {
@@ -212,7 +214,7 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 
 	@java.lang.Override
 	public String lookup(String username) throws RemoteException {
-		System.out.println("Started lookup");
+		//System.out.println("Started lookup");
 		//insert read semaphore users
 		if(users.containsKey(username)==false){
 			//close read semaphore users
@@ -241,7 +243,7 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 
 				children.put(domain, nameserver);
 			}
-			System.out.println("Successfully inserted " + domain);
+			//System.out.println("Successfully inserted " + domain);
 			//close write semaphore domain /children
 		}else{
 			String end=domain.substring(index+1);
@@ -257,7 +259,7 @@ public class Nameserver implements INameserverCli, INameserver, Runnable {
 			}
 			//close read semaphore children
 
-			System.out.println("registerNameserver recursion: " + next);
+			//System.out.println("registerNameserver recursion: " + next);
 			serverTest.registerNameserver(next, nameserver, null);
 		}
 
