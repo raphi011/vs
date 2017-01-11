@@ -10,8 +10,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
+import org.bouncycastle.util.encoders.Base64;
 
 public class AesProvider {
 
@@ -51,8 +50,6 @@ public class AesProvider {
             e.printStackTrace();
         } catch (BadPaddingException e) {
             e.printStackTrace();
-        } catch (Base64DecodingException e) {
-            e.printStackTrace();
         }
         //System.out.println("from decrypt: "+ret);
         return ret;
@@ -62,9 +59,7 @@ public class AesProvider {
             return null;
         }
 
-        //System.out.println("to encrypt: "+input);
-
-        String ret = null;
+        byte[] ret = null;
 
         try {
             ret = Base64.encode(encryptCipher.doFinal(input.getBytes()));
@@ -74,6 +69,6 @@ public class AesProvider {
             e.printStackTrace();
         }
         //System.out.println("from encrypt: "+ret);
-        return ret;
+        return new String(ret);
     }
 }
