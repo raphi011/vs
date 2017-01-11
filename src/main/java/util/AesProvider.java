@@ -18,7 +18,6 @@ public class AesProvider {
     private Cipher encryptCipher;
 
     public AesProvider(byte[] key, byte[] vector) {
-        com.sun.org.apache.xml.internal.security.Init.init();
 
         try {
             decryptCipher = Cipher.getInstance("AES/CTR/NoPadding");

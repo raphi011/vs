@@ -1,7 +1,6 @@
 package util;
 
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
+import org.bouncycastle.util.encoders.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -22,9 +21,9 @@ public class RsaProvider {
 	private Cipher privateCipher;
 	private Cipher publicCipher;
 
-	static {
-		com.sun.org.apache.xml.internal.security.Init.init();
-	}
+	//static {
+	//	com.sun.org.apache.xml.internal.security.Init.init();
+	//}
 
 	public void setPublicKey(File keyFile) {
 		try {
@@ -72,9 +71,6 @@ public class RsaProvider {
 		String ret=null;
 		try {
 			ret = new String(privateCipher.doFinal(Base64.decode(input.getBytes())));
-		} catch (Base64DecodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (BadPaddingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -94,7 +90,7 @@ public class RsaProvider {
 		String ret=null;
 
 		try {
-			ret = Base64.encode(publicCipher.doFinal(input.getBytes()));
+			ret = new String(Base64.encode(publicCipher.doFinal(input.getBytes())));
 			ret=ret.replace("\n", "");
 			ret=ret.replace("\r", "");
 		} catch (IllegalBlockSizeException e) {

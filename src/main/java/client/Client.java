@@ -7,11 +7,8 @@ import java.io.PrintStream;
 import java.net.*;
 
 import channel.*;
-import chatserver.UserStore;
 import client.protocol.ClientProtocol;
 import client.protocol.PrivateChatProtocolFactory;
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-import com.sun.xml.internal.fastinfoset.util.CharArray;
 import connection.ConnectionAgent;
 import cli.Command;
 import cli.Shell;
@@ -20,7 +17,7 @@ import connection.ReadProtocolFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.sun.org.apache.xml.internal.security.utils.Base64;
+import org.bouncycastle.util.encoders.Base64;
 
 import util.*;
 
@@ -297,7 +294,7 @@ public class Client implements IClientCli, Runnable {
 		Keys.PasswordReader pwdReader  = new Keys.PasswordReader(username);
 		char pwd[] = pwdReader.getPassword();
 		rsaProvider.setPrivateKey(privateKeyfile, new String(pwd));
-		String challenge=Base64.encode(SecurityUtils.getRandomBytes(32));
+		String challenge = new String(Base64.encode(SecurityUtils.getRandomBytes(32)));
 		String request = String.format("!authenticate %s %s", username, challenge);
 		tcpChannel.writeLine(rsaProvider.encrypt(request));
 
@@ -312,11 +309,8 @@ public class Client implements IClientCli, Runnable {
 		//try {
 		//	System.out.println("Challenge: " + challenge + " | Vector: " + params[4] + " | " + Base64.decode(params[4]).length);
 		//} catch (Base64DecodingException e1) {}
-
 		AesProvider aesProvider = null;
-		try {
-			aesProvider = new AesProvider(Base64.decode(params[3]), Base64.decode(params[4]));
-		} catch (Base64DecodingException e1) {}
+		aesProvider = new AesProvider(Base64.decode(params[3]), Base64.decode(params[4]));
 
 		secureChannel = new SecureChannel(tcpChannel, aesProvider);
 

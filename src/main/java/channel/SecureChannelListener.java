@@ -1,6 +1,6 @@
 package channel;
 
-import com.sun.org.apache.xml.internal.security.utils.Base64;
+import org.bouncycastle.util.encoders.Base64;
 import util.AesProvider;
 import util.RsaProvider;
 import util.SecurityUtils;
@@ -8,7 +8,6 @@ import util.SecurityUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.Observable;
 
 public class SecureChannelListener extends TcpListener {
 
@@ -66,7 +65,7 @@ public class SecureChannelListener extends TcpListener {
         String[] params = request.split(" ");
         username = params[1];
         String clientChallenge = params[2];
-        String serverChallenge = Base64.encode(SecurityUtils.getRandomBytes(32));
+        String serverChallenge = new String(Base64.encode(SecurityUtils.getRandomBytes(32)));
         byte[] secretKey = SecurityUtils.getRandomBytes(32);
         byte[] vector = SecurityUtils.getRandomBytes(16);
 
@@ -83,8 +82,8 @@ public class SecureChannelListener extends TcpListener {
                 "!ok %s %s %s %s",
                 clientChallenge,
                 serverChallenge,
-                Base64.encode(secretKey),
-                Base64.encode(vector));
+                new String(Base64.encode(secretKey)),
+                new String(Base64.encode(vector)));
 
         String encryptedResponse = rsaProvider.encrypt(response);
         channel.writeLine(encryptedResponse);
